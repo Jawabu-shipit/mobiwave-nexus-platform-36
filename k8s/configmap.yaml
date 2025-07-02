@@ -1,0 +1,31 @@
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mobiwave-config
+  namespace: mobiwave
+data:
+  # Database configuration
+  DATABASE_HOST: "postgres-service"
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: "mobiwave_db"
+  
+  # Redis configuration
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+  
+  # RabbitMQ configuration
+  RABBITMQ_HOST: "rabbitmq-service"
+  RABBITMQ_PORT: "5672"
+  
+  # Application configuration
+  NODE_ENV: "production"
+  LOG_LEVEL: "info"
+  
+  # Microservices endpoints
+  AUTH_SERVICE_URL: "http://auth-service:3001"
+  MESSAGE_SERVICE_URL: "http://message-service:3002"
+  USER_SERVICE_URL: "http://user-service:3003"
+  NOTIFICATION_SERVICE_URL: "http://notification-service:3004"
+  FILE_SERVICE_URL: "http://file-service:3005"
+  ANALYTICS_SERVICE_URL: "http://analytics-service:3006"
