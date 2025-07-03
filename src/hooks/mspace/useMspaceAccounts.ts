@@ -65,7 +65,13 @@ export const useMspaceAccounts = () => {
         });
         
         if (error) {
-          throw new Error(error.message);
+          console.error('MSpace accounts error:', error);
+          throw new Error(error.message || 'Failed to fetch reseller clients');
+        }
+        
+        if (!data) {
+          console.warn('No data returned from MSpace accounts API');
+          return [];
         }
         
         return (data?.resellerClients || []).map((client: ResellerClientApiResponse) => ({
@@ -77,9 +83,16 @@ export const useMspaceAccounts = () => {
 
       return await handleRetry(clientsOperation);
     } catch (error: any) {
+      console.error('Query reseller clients failed:', error.message);
+      
+      // Check if it's a credentials issue
+      if (error.message?.includes('credentials not configured') || error.message?.includes('MSPACE_API_KEY')) {
+        throw new Error('MSpace API credentials not configured. Please contact administrator to set up MSpace integration.');
+      }
+      
       handleError(error, {
         operation: 'Query Reseller Clients',
-        shouldRetry: true,
+        shouldRetry: false, // Don't retry credential errors
         retryFn: () => queryResellerClients()
       });
       throw error;

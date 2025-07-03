@@ -21,11 +21,7 @@ export function RealDataIntegrationTest() {
   const { billingData, isLoading: billingLoading, error: billingError } = useBillingData();
   const { analyticsData, isLoading: analyticsLoading, error: analyticsError } = useAnalyticsData();
   const { usageData, isLoading: usageLoading, error: usageError } = useUsageAnalytics();
-<<<<<<< HEAD
-  const { systemMetrics, isLoading: systemLoading, error: systemError } = useSystemMetrics();
-=======
   const { data: systemMetrics, isLoading: systemLoading, error: systemError } = useSystemMetrics();
->>>>>>> 364714e (change commit)
   const { metrics: serviceMetrics, isLoading: serviceLoading } = useServiceAnalytics();
 
   const tests: TestResult[] = [

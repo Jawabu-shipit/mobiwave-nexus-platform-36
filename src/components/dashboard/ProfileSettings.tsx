@@ -10,14 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { toast } from 'sonner';
 import { User, Upload, Shield, Bell, Key } from 'lucide-react';
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 import { ApiCredentials } from '@/components/settings/ApiCredentials';
->>>>>>> 7144a38 (second commit)
-=======
-import { ApiCredentials } from '@/components/settings/ApiCredentials';
->>>>>>> 364714e (change commit)
 
 export function ProfileSettings() {
   const { user } = useAuth();
@@ -253,18 +246,8 @@ export function ProfileSettings() {
         </CardContent>
       </Card>
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
       {/* Mspace API Configuration */}
       <ApiCredentials />
-
->>>>>>> 7144a38 (second commit)
-=======
-      {/* Mspace API Configuration */}
-      <ApiCredentials />
-
->>>>>>> 364714e (change commit)
       {/* API Key Management */}
       <Card>
         <CardHeader>

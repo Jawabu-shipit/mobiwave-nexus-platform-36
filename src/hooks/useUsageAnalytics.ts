@@ -87,7 +87,7 @@ export const useUsageAnalytics = () => {
       const smsCount = smsMessages?.length || 0;
       const whatsappCount = whatsappMessages?.length || 0;
       const emailCount = emailMessages?.length || 0;
- //     const ussdCount = ussdSessions?.length || 0;
+      const ussdCount = 0; // Placeholder since ussd_sessions is not implemented
       const mpesaCount = 0; // mpesaTransactions?.length || 0;
 
       const totalCost = (smsCount * 0.05) + (whatsappCount * 0.03) + (emailCount * 0.01) + (ussdCount * 0.10) + (mpesaCount * 0.02);
@@ -95,7 +95,7 @@ export const useUsageAnalytics = () => {
       return {
         smsSent: smsCount,
         whatsappMessages: whatsappCount,
-    //    ussdSessions: ussdCount,
+        ussdSessions: ussdCount,
         mpesaTransactions: mpesaCount,
         emailsSent: emailCount,
         totalCost

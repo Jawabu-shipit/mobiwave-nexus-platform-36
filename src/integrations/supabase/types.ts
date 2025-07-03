@@ -734,6 +734,54 @@ export type Database = {
           },
         ]
       }
+      mpesa_transactions: {
+        Row: {
+          account_reference: string | null
+          amount: number
+          created_at: string | null
+          description: string | null
+          id: string
+          mpesa_receipt_number: string | null
+          phone_number: string
+          status: string | null
+          transaction_desc: string | null
+          transaction_id: string
+          transaction_type: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          account_reference?: string | null
+          amount: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          mpesa_receipt_number?: string | null
+          phone_number: string
+          status?: string | null
+          transaction_desc?: string | null
+          transaction_id: string
+          transaction_type: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          account_reference?: string | null
+          amount?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          mpesa_receipt_number?: string | null
+          phone_number?: string
+          status?: string | null
+          transaction_desc?: string | null
+          transaction_id?: string
+          transaction_type?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       mspace_pesa_integrations: {
         Row: {
           callback_url: string
@@ -1618,7 +1666,15 @@ export type Database = {
           updated_at?: string | null
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_user_credits_user_id"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_plan_subscriptions: {
         Row: {
@@ -2053,6 +2109,10 @@ export type Database = {
       user_has_service_access: {
         Args: { user_uuid: string; service_type_name: string }
         Returns: boolean
+      }
+      validate_kenyan_phone: {
+        Args: { phone_input: string }
+        Returns: string
       }
     }
     Enums: {
