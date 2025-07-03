@@ -78,23 +78,44 @@ export function EnhancedContactsBulkActions({
   };
 
   const handleBulkDelete = async () => {
-    const deletePromises = selectedContacts.map(contact => deleteContact(contact.id));
-    await Promise.all(deletePromises);
-    toast.success(`${selectedContacts.length} contacts deleted successfully`);
+    let deletedCount = 0;
+    const failedDeletes: string[] = [];
+    
+    for (const contact of selectedContacts) {
+      try {
+        await deleteContact(contact.id);
+        deletedCount++;
+      } catch (error) {
+        failedDeletes.push(contact.first_name || contact.phone);
+      }
+    }
+    
+    if (deletedCount > 0) {
+      toast.success(`Successfully deleted ${deletedCount} contacts`);
+    }
+    if (failedDeletes.length > 0) {
+      toast.error(`Failed to delete ${failedDeletes.length} contacts`);
+    }
   };
 
   const handleBulkValidation = async () => {
-    const validationResults = selectedContacts.map(contact => ({
-      contact,
-      validation: validateAndFormatPhoneNumber(contact.phone)
-    }));
-
-    const invalidContacts = validationResults.filter(result => !result.validation.isValid);
+    const validationResults = selectedContacts.map(contact => {
+      const validatedPhone = validateAndFormatPhoneNumber(contact.phone);
+      return {
+        ...contact,
+        validPhone: validatedPhone,
+        isValid: !!validatedPhone
+      };
+    });
     
-    if (invalidContacts.length === 0) {
-      toast.success('All selected contacts have valid phone numbers');
-    } else {
-      toast.warning(`Found ${invalidContacts.length} contacts with invalid phone numbers`);
+    const invalidContacts = validationResults.filter(r => !r.isValid);
+    const validContacts = validationResults.filter(r => r.isValid);
+    
+    if (invalidContacts.length > 0) {
+      toast.error(`${invalidContacts.length} contacts have invalid phone numbers`);
+    }
+    if (validContacts.length > 0) {
+      toast.success(`${validContacts.length} contacts have valid phone numbers`);
     }
   };
 

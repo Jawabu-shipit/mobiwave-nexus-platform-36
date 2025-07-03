@@ -19,6 +19,15 @@ serve(async (req) => {
       throw new Error('Authorization header required')
     }
 
+    // Use Supabase secrets for Mspace credentials
+    const username = Deno.env.get('MSPACE_USERNAME')
+    const apiKey = Deno.env.get('MSPACE_API_KEY')
+    
+    if (!username || !apiKey) {
+      console.error('Missing Mspace credentials in balance check. Available env vars:', Object.keys(Deno.env.toObject()))
+      throw new Error('Missing Mspace credentials')
+    }
+
     // Create Supabase client
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',

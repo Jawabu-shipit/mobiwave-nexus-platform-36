@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { Users, Mail, Ban, CheckCircle, Trash2, X, UserPlus, Shield } from 'lucide-react';
 import { useContactGroupOperations } from '@/hooks/contacts/useContactGroupOperations';
 import { useContactGroups } from '@/hooks/contacts/useContactGroups';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AdminContactsBulkActionsProps {
   selectedContacts: any[];
@@ -37,34 +38,64 @@ export function AdminContactsBulkActions({
     setIsProcessing(true);
 
     try {
+      const contactIds = selectedContacts.map(contact => contact.id);
+      
       switch (actionType) {
         case 'move':
           if (!selectedGroupId) {
             toast.error('Please select a group');
             return;
           }
-          const contactIds = selectedContacts.map(contact => contact.id);
           await bulkAddContactsToGroup({ contactIds, groupId: selectedGroupId });
           break;
         
         case 'delete':
-          // Admin bulk delete functionality
-          toast.success(`${selectedContacts.length} contacts deleted successfully`);
+          // Call admin edge function for bulk delete
+          const { data: deleteData, error: deleteError } = await supabase.functions.invoke('admin-contacts', {
+            body: {
+              action: 'delete',
+              contactIds
+            }
+          });
+          
+          if (deleteError) throw deleteError;
           break;
         
         case 'activate':
-          // Admin bulk activate functionality
-          toast.success(`${selectedContacts.length} contacts activated successfully`);
+          // Call admin edge function for bulk activate
+          const { data: activateData, error: activateError } = await supabase.functions.invoke('admin-contacts', {
+            body: {
+              action: 'activate',
+              contactIds
+            }
+          });
+          
+          if (activateError) throw activateError;
           break;
           
         case 'suspend':
-          // Admin bulk suspend functionality
-          toast.success(`${selectedContacts.length} contacts suspended successfully`);
+          // Call admin edge function for bulk suspend
+          const { data: suspendData, error: suspendError } = await supabase.functions.invoke('admin-contacts', {
+            body: {
+              action: 'suspend',
+              contactIds
+            }
+          });
+          
+          if (suspendError) throw suspendError;
           break;
           
         case 'email':
-          // Admin bulk email functionality
-          toast.success(`Email sent to ${selectedContacts.length} contacts successfully`);
+          // Call admin edge function for bulk email
+          const { data: emailData, error: emailError } = await supabase.functions.invoke('admin-contacts', {
+            body: {
+              action: 'email',
+              contactIds,
+              emailContent: 'Admin notification email'
+            }
+          });
+          
+          if (emailError) throw emailError;
           break;
       }
 
@@ -72,6 +103,7 @@ export function AdminContactsBulkActions({
       onRefresh();
       setIsActionDialogOpen(false);
     } catch (error: any) {
+      console.error('Admin bulk action failed:', error);
       toast.error(`Bulk action failed: ${error.message}`);
     } finally {
       setIsProcessing(false);
