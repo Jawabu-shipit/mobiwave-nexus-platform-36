@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from 'sonner';
 import { Users, Merge, AlertTriangle, Check } from 'lucide-react';
-import { Contact } from '@/hooks/useContacts';
+import { Contact } from '@/hooks/contacts/useContactsData';
 
 interface ContactDuplicateDetectorProps {
   contacts: Contact[];

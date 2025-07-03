@@ -7,11 +7,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Users, UserPlus, Search, Edit, Trash2, Upload, Download } from 'lucide-react';
-import { useContacts } from '@/hooks/useContacts';
+import { useContactsData } from '@/hooks/contacts/useContactsData';
+import { useContactMutations } from '@/hooks/contacts/useContactMutations';
 import { toast } from 'sonner';
 
 export function ContactsManager() {
-  const { contacts, contactGroups, isLoading, createContact, updateContact, deleteContact, createContactGroup, importContacts } = useContacts();
+  const { data: contacts = [], isLoading } = useContactsData();
+  const { createContact, updateContact, deleteContact, importContacts } = useContactMutations();
+  const contactGroups: any[] = [];
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddContactOpen, setIsAddContactOpen] = useState(false);
   const [isAddGroupOpen, setIsAddGroupOpen] = useState(false);
@@ -78,11 +81,8 @@ export function ContactsManager() {
 
   const handleAddGroup = async () => {
     try {
-      // Add the required contact_count property
-      await createContactGroup({
-        ...newGroup,
-        contact_count: 0
-      });
+      // Contact groups functionality disabled for now
+      toast.success('Contact groups feature coming soon!');
       setNewGroup({ name: '', description: '' });
       setIsAddGroupOpen(false);
     } catch (error) {

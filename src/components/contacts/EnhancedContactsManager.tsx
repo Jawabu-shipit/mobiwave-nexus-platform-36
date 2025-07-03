@@ -7,13 +7,13 @@ import { ContactImportExport } from './ContactImportExport';
 import { ContactDuplicateDetector } from './ContactDuplicateDetector';
 import { EnhancedContactsBulkActions } from './EnhancedContactsBulkActions';
 import { Users, Upload, Search, UserPlus } from 'lucide-react';
-import { useContacts } from '@/hooks/useContacts';
 import { useContactsData } from '@/hooks/contacts/useContactsData';
+import { useContactMutations } from '@/hooks/contacts/useContactMutations';
 import { useContactGroupOperations } from '@/hooks/contacts/useContactGroupOperations';
 
 export function EnhancedContactsManager() {
-  const { contacts = [], importContacts, mergeContacts } = useContacts();
   const { data: contactsData = [], refetch } = useContactsData();
+  const { importContacts, mergeContacts } = useContactMutations();
   const [selectedContacts, setSelectedContacts] = useState<any[]>([]);
   const { 
     addContactToGroup, 
@@ -33,7 +33,7 @@ export function EnhancedContactsManager() {
 
   const handleMergeContacts = async (keepContact: any, duplicateIds: string[]) => {
     try {
-      await mergeContacts({ primaryId: keepContact.id, duplicateIds });
+      await mergeContacts({ keepContact, duplicateIds });
     } catch (error) {
       console.error('Merge failed:', error);
       throw error;
@@ -84,14 +84,14 @@ export function EnhancedContactsManager() {
 
         <TabsContent value="import-export" className="space-y-4">
           <ContactImportExport 
-            contacts={contacts} 
+            contacts={contactsData} 
             onImport={handleImportContacts}
           />
         </TabsContent>
 
         <TabsContent value="duplicates" className="space-y-4">
           <ContactDuplicateDetector 
-            contacts={contacts}
+            contacts={contactsData}
             onMergeContacts={handleMergeContacts}
           />
         </TabsContent>

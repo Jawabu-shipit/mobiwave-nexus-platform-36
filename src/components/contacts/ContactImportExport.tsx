@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from 'sonner';
 import { Upload, Download, FileText, Users } from 'lucide-react';
-import { Contact } from '@/hooks/useContacts';
+import { Contact } from '@/hooks/contacts/useContactsData';
 
 interface ContactImportExportProps {
   contacts: Contact[];
