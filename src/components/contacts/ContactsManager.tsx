@@ -44,7 +44,9 @@ export function ContactsManager() {
 
   const handleAddContact = async () => {
     try {
-      await createContact(newContact);
+      console.log('Creating contact with data:', newContact);
+      const result = await createContact(newContact);
+      console.log('Contact creation result:', result);
       setNewContact({
         first_name: '',
         last_name: '',
