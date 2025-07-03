@@ -33,27 +33,27 @@ export const useUsageAnalytics = () => {
       // Get SMS messages
       const { data: smsMessagesRaw } = await supabase
         .from('message_history')
-        .select('*')
+        .select('id, user_id, type, created_at')
         .eq('user_id', user.id)
-        .eq('message_type', 'sms')
+        .eq('type', 'sms')
         .gte('created_at', firstDayOfMonth.toISOString());
       const smsMessages = (smsMessagesRaw as any[]) || [];
 
       // Get WhatsApp messages
       const { data: whatsappMessagesRaw } = await supabase
         .from('message_history')
-        .select('*')
+        .select('id, user_id, type, created_at')
         .eq('user_id', user.id)
-        .eq('message_type', 'whatsapp')
+        .eq('type', 'whatsapp')
         .gte('created_at', firstDayOfMonth.toISOString());
       const whatsappMessages = (whatsappMessagesRaw as any[]) || [];
 
       // Get Email messages
       const { data: emailMessagesRaw } = await supabase
         .from('message_history')
-        .select('*')
+        .select('id, user_id, type, created_at')
         .eq('user_id', user.id)
-        .eq('message_type', 'email')
+        .eq('type', 'email')
         .gte('created_at', firstDayOfMonth.toISOString());
       const emailMessages = (emailMessagesRaw as any[]) || [];
 

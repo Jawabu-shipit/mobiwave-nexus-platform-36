@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 interface AnalyticsData {
   totalMessages: number;
   deliveryRate: number;
+  openRate: number;
   totalCost: number;
   activeCampaigns: number;
   scheduledCampaigns: number;
@@ -23,6 +24,7 @@ export const useAnalyticsData = () => {
         return {
           totalMessages: 0,
           deliveryRate: 0,
+          openRate: 0,
           totalCost: 0,
           activeCampaigns: 0,
           scheduledCampaigns: 0,
@@ -44,7 +46,7 @@ export const useAnalyticsData = () => {
       // Get message history for current period - handle missing columns gracefully
       const { data: currentMessages, error: currentError } = await supabase
         .from('message_history')
-        .select('*')
+        .select('id, user_id, status, cost, created_at, type')
         .eq('user_id', user.id)
         .gte('created_at', thirtyDaysAgo.toISOString());
 
@@ -80,7 +82,7 @@ export const useAnalyticsData = () => {
       // Get message history for previous period (for comparison)
       const { data: previousMessages } = await supabase
         .from('message_history')
-        .select('*')
+        .select('id, user_id, status, cost, created_at, type')
         .eq('user_id', user.id)
         .gte('created_at', sixtyDaysAgo.toISOString())
         .lt('created_at', thirtyDaysAgo.toISOString());
@@ -88,13 +90,16 @@ export const useAnalyticsData = () => {
       // Get campaigns data
       const { data: campaigns } = await supabase
         .from('campaigns')
-        .select('*')
+        .select('id, user_id, status, created_at')
         .eq('user_id', user.id);
 
       // Calculate current period metrics
       const totalMessages = messagesData?.length || 0;
       const deliveredMessages = messagesData?.filter(m => m.status === 'delivered').length || 0;
       const deliveryRate = totalMessages > 0 ? (deliveredMessages / totalMessages) * 100 : 0;
+      
+      // Calculate open rate (mock calculation based on delivered messages)
+      const openRate = deliveredMessages > 0 ? (deliveredMessages * 0.35) : 0; // 35% average open rate
       
       // Calculate cost (assuming $0.05 per message)
       const totalCost = totalMessages * 0.05;
@@ -130,6 +135,7 @@ export const useAnalyticsData = () => {
       return {
         totalMessages,
         deliveryRate,
+        openRate,
         totalCost,
         activeCampaigns,
         scheduledCampaigns,

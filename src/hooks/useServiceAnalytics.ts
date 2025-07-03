@@ -154,7 +154,7 @@ export const useServiceAnalytics = () => {
         const response = await supabase
           .from('credit_transactions')
           .select('amount, created_at')
-          .eq('transaction_type', 'purchase')
+          .eq('type', 'purchase')
           .gte('created_at', oneYearAgo);
         
         if (response.data) {
