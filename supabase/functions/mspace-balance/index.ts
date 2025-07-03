@@ -25,6 +25,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
+    // Use Supabase secrets for credentials (most secure)
     let apiKey = Deno.env.get('MSPACE_API_KEY')
     let username = Deno.env.get('MSPACE_USERNAME')
 

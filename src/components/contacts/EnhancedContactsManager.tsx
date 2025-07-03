@@ -9,11 +9,18 @@ import { EnhancedContactsBulkActions } from './EnhancedContactsBulkActions';
 import { Users, Upload, Search, UserPlus } from 'lucide-react';
 import { useContacts } from '@/hooks/useContacts';
 import { useContactsData } from '@/hooks/contacts/useContactsData';
+import { useContactGroupOperations } from '@/hooks/contacts/useContactGroupOperations';
 
 export function EnhancedContactsManager() {
   const { contacts = [], importContacts, mergeContacts } = useContacts();
-  const { data: contactsData = [] } = useContactsData();
+  const { data: contactsData = [], refetch } = useContactsData();
   const [selectedContacts, setSelectedContacts] = useState<any[]>([]);
+  const { 
+    addContactToGroup, 
+    bulkAddContactsToGroup, 
+    moveContactsBetweenGroups,
+    bulkRemoveContactsFromGroup 
+  } = useContactGroupOperations();
 
   const handleImportContacts = async (contactsData: any[]) => {
     try {
@@ -66,7 +73,7 @@ export function EnhancedContactsManager() {
           <EnhancedContactsBulkActions 
             selectedContacts={selectedContacts}
             onClearSelection={() => setSelectedContacts([])}
-            onRefresh={() => {}}
+            onRefresh={refetch}
           />
           <ContactsManager />
         </TabsContent>

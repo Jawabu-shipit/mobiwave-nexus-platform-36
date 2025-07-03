@@ -13,6 +13,8 @@ import { validateAndFormatPhoneNumber, getValidPhoneNumbers } from '@/utils/phon
 import { ContactGroupSelector } from './ContactGroupSelector';
 import { PhoneNumberListValidator } from './PhoneNumberValidator';
 import { toast } from 'sonner';
+import { TemplateManager } from './TemplateManager';
+import { useSMSTemplates } from '@/hooks/useSMSTemplates';
 
 interface QuickSMSFormProps {
   message: string;
@@ -25,6 +27,7 @@ interface QuickSMSFormProps {
   onScheduledForChange: (scheduledFor: string) => void;
   onAddRecipient: () => void;
   onRemoveRecipient: (phone: string) => void;
+  showTemplateSelector?: boolean;
 }
 
 export function QuickSMSForm({
@@ -37,10 +40,14 @@ export function QuickSMSForm({
   onNewRecipientChange,
   onScheduledForChange,
   onAddRecipient,
-  onRemoveRecipient
+  onRemoveRecipient,
+  showTemplateSelector = true
 }: QuickSMSFormProps & { onRecipientsChange: (recipients: string[]) => void }) {
   const [phoneValidation, setPhoneValidation] = useState<{ isValid: boolean; message?: string }>({ isValid: true });
   const [recipientInputMethod, setRecipientInputMethod] = useState<'manual' | 'contacts'>('manual');
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
+  
+  const { templates, processTemplate } = useSMSTemplates();
   
   const characterCount = message.length;
   const smsCount = Math.ceil(characterCount / 160);
@@ -117,6 +124,12 @@ export function QuickSMSForm({
     }
   };
 
+  const handleTemplateSelect = (template: any) => {
+    const processedMessage = processTemplate(template, {});
+    onMessageChange(processedMessage);
+    toast.success(`Template "${template.name}" applied`);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -126,6 +139,16 @@ export function QuickSMSForm({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {showTemplateSelector && (
+          <TemplateManager 
+            onTemplateSelect={handleTemplateSelect}
+            showTemplateSelector={true}
+            selectedTemplateId={selectedTemplateId}
+          />
+        )}
+        
+        <Separator />
+        
         <div>
           <Label htmlFor="message">Message *</Label>
           <Textarea

@@ -31,8 +31,9 @@ export async function getApiCredentials(authHeader: string) {
   }
 
   const config = credentials.additional_config as Record<string, unknown>
+  // Use Supabase secrets as fallback
   const apiKey = config?.api_key as string || Deno.env.get('MSPACE_API_KEY')
-  const username = config?.username as string
+  const username = config?.username as string || Deno.env.get('MSPACE_USERNAME')
   const defaultSenderId = config?.sender_id as string || 'MOBIWAVE'
 
   if (!apiKey || !username) {

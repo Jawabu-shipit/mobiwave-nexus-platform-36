@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { Users, Move, Trash2, UserPlus, AlertTriangle } from 'lucide-react';
 import { useContactGroups } from '@/hooks/contacts/useContactGroups';
 import { useContactMutations } from '@/hooks/contacts/useContactMutations';
+import { useContactGroupOperations } from '@/hooks/contacts/useContactGroupOperations';
 import { validateAndFormatPhoneNumber } from '@/utils/phoneValidation';
 
 interface EnhancedContactsBulkActionsProps {
@@ -30,6 +31,7 @@ export function EnhancedContactsBulkActions({
 
   const { contactGroups } = useContactGroups();
   const { deleteContact } = useContactMutations();
+  const { bulkAddContactsToGroup, bulkRemoveContactsFromGroup } = useContactGroupOperations();
 
   const handleBulkAction = async () => {
     if (selectedContacts.length === 0) {
@@ -70,7 +72,8 @@ export function EnhancedContactsBulkActions({
   };
 
   const handleMoveToGroup = async () => {
-    // This would require implementing the addContactsToGroup functionality
+    const contactIds = selectedContacts.map(contact => contact.id);
+    await bulkAddContactsToGroup({ contactIds, groupId: selectedGroupId });
     toast.success(`${selectedContacts.length} contacts moved to group successfully`);
   };
 

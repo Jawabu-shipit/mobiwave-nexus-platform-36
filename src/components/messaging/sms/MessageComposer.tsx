@@ -6,7 +6,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { TemplateManager } from './TemplateManager';
+import { useSMSTemplates } from '@/hooks/useSMSTemplates';
 import { MessageSquare, FileText, User } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface MessageComposerProps {
   message: string;
@@ -22,6 +25,9 @@ export function MessageComposer({
   showTemplates = false 
 }: MessageComposerProps) {
   const [selectedTemplate, setSelectedTemplate] = useState('');
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
+  
+  const { processTemplate } = useSMSTemplates();
 
   const templates = [
     { id: 'welcome', name: 'Welcome Message', content: 'Welcome to our service! We\'re excited to have you on board.' },
@@ -35,7 +41,7 @@ export function MessageComposer({
     { tag: '{phone}', description: 'Recipient\'s phone number' }
   ];
 
-  const handleTemplateSelect = (templateId: string) => {
+  const handleLegacyTemplateSelect = (templateId: string) => {
     const template = templates.find(t => t.id === templateId);
     if (template) {
       onMessageChange(template.content);
@@ -50,6 +56,13 @@ export function MessageComposer({
 
   const smsCount = Math.ceil(message.length / 160);
 
+  const handleTemplateSelect = (template: any) => {
+    const processedMessage = processTemplate(template, {});
+    onMessageChange(processedMessage);
+    setSelectedTemplateId(template.id);
+    toast.success(`Template "${template.name}" applied`);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -63,22 +76,13 @@ export function MessageComposer({
       </CardHeader>
       <CardContent className="space-y-4">
         {showTemplates && (
-          <div>
-            <Label htmlFor="template">Use Template</Label>
-            <Select value={selectedTemplate} onValueChange={handleTemplateSelect}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a template" />
-              </SelectTrigger>
-              <SelectContent>
-                 {templates.map(template => (
-                  <SelectItem key={template.id} value={template.id}>
-                    {template.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <TemplateManager 
+            onTemplateSelect={handleTemplateSelect}
+            showTemplateSelector={true}
+            selectedTemplateId={selectedTemplateId}
+          />
         )}
+        
 
         <div>
           <Label htmlFor="message">Message Content *</Label>

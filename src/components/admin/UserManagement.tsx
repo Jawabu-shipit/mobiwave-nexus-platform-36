@@ -8,11 +8,13 @@ import { MspaceUserManagement } from './mspace/MspaceUserManagement';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, Globe, AlertTriangle, Shield } from 'lucide-react';
 import { UserRoleManager } from './user-management/UserRoleManager';
+import { AdminContactsBulkActions } from './users/AdminContactsBulkActions';
 
 export function UserManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [userTypeFilter, setUserTypeFilter] = useState('all');
+  const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
 
   const { users, isLoading, stats, refetch } = useCompleteUserManagement(searchTerm, roleFilter, userTypeFilter);
 
@@ -56,6 +58,12 @@ export function UserManagement() {
         </TabsList>
 
         <TabsContent value="users" className="space-y-6">
+          <AdminContactsBulkActions 
+            selectedContacts={selectedUsers}
+            onClearSelection={() => setSelectedUsers([])}
+            onRefresh={refetch}
+          />
+          
           <CompleteUserStats stats={stats} />
           
           <EnhancedUserFilters 

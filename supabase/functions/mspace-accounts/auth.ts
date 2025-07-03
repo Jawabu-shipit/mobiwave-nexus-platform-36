@@ -31,7 +31,7 @@ export async function authenticateUser(authHeader: string) {
 }
 
 export async function getApiCredentials(supabase: SupabaseClient, userId: string | null) {
-  // First, try to get credentials from environment variables (more secure)
+  // First, try to get credentials from Supabase secrets (most secure)
   const apiKey = Deno.env.get('MSPACE_API_KEY')
   const mspaceUsername = Deno.env.get('MSPACE_USERNAME')
 
