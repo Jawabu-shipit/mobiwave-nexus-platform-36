@@ -217,6 +217,8 @@ export const useServiceActivationRequests = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['service-activation-requests-all'] });
       queryClient.invalidateQueries({ queryKey: ['user-service-access'] });
+      queryClient.invalidateQueries({ queryKey: ['activated-service-types'] });
+      queryClient.invalidateQueries({ queryKey: ['user-subscriptions'] });
       toast.success('Request approved and service activated!');
     },
     onError: (error: any) => {
