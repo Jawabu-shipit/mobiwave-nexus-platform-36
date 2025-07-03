@@ -9,19 +9,29 @@ export const useContactMutations = () => {
 
   const createContact = useMutation({
     mutationFn: async (contact: Omit<Contact, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) {
+        console.error('Authentication error:', authError);
+        throw new Error('User not authenticated');
+      }
+
+      const contactData = {
+        ...contact,
+        user_id: user.id
+      };
+
+      console.log('Creating contact with data:', contactData);
 
       const { data, error } = await supabase
         .from('contacts')
-        .insert({
-          ...contact,
-          user_id: user.id
-        })
+        .insert(contactData)
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
       return data;
     },
     onSuccess: () => {
