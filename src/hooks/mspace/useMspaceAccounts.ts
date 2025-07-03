@@ -85,14 +85,9 @@ export const useMspaceAccounts = () => {
     } catch (error: any) {
       console.error('Query reseller clients failed:', error.message);
       
-      // Check if it's a credentials issue
-      if (error.message?.includes('credentials not configured') || error.message?.includes('MSPACE_API_KEY')) {
-        throw new Error('MSpace API credentials not configured. Please contact administrator to set up MSpace integration.');
-      }
-      
       handleError(error, {
         operation: 'Query Reseller Clients',
-        shouldRetry: false, // Don't retry credential errors
+        shouldRetry: true,
         retryFn: () => queryResellerClients()
       });
       throw error;
