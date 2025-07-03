@@ -70,7 +70,7 @@ export function MessageComposer({
                 <SelectValue placeholder="Select a template" />
               </SelectTrigger>
               <SelectContent>
-                {templates.map(template => (
+                 {templates.map(template => (
                   <SelectItem key={template.id} value={template.id}>
                     {template.name}
                   </SelectItem>

@@ -7,89 +7,75 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from 'sonner';
-import { FileText, Plus, Edit, Trash2, Save } from 'lucide-react';
-
-interface Template {
-  id: string;
-  name: string;
-  content: string;
-  category: string;
-  variables: string[];
-  created_at: string;
-}
+import { FileText, Plus, Edit, Trash2, Save, Loader2 } from 'lucide-react';
+import { useSMSTemplates } from '@/hooks/sms/useSMSTemplates';
 
 export function TemplateManager() {
-  const [templates, setTemplates] = useState<Template[]>([
-    {
-      id: '1',
-      name: 'Welcome Message',
-      content: 'Welcome {{name}}! Thank you for joining {{company}}. Your account is now active.',
-      category: 'welcome',
-      variables: ['name', 'company'],
-      created_at: new Date().toISOString()
-    },
-    {
-      id: '2',
-      name: 'Payment Reminder',
-      content: 'Hi {{name}}, your payment of {{amount}} is due on {{date}}. Please pay to avoid late fees.',
-      category: 'billing',
-      variables: ['name', 'amount', 'date'],
-      created_at: new Date().toISOString()
-    }
-  ]);
+  const { 
+    templates, 
+    isLoading, 
+    createTemplate, 
+    updateTemplate, 
+    deleteTemplate,
+    extractVariables,
+    isCreating,
+    isUpdating,
+    isDeleting
+  } = useSMSTemplates();
 
-  const [isCreating, setIsCreating] = useState(false);
-  const [editingTemplate, setEditingTemplate] = useState<Template | null>(null);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<any>(null);
   const [newTemplate, setNewTemplate] = useState({
     name: '',
     content: '',
     category: ''
   });
 
-  const extractVariables = (content: string): string[] => {
-    const matches = content.match(/\{\{([^}]+)\}\}/g);
-    return matches ? matches.map(match => match.slice(2, -2)) : [];
-  };
-
-  const handleSaveTemplate = () => {
+  const handleSaveTemplate = async () => {
     if (!newTemplate.name || !newTemplate.content) {
       toast.error('Please fill in all required fields');
       return;
     }
 
-    const variables = extractVariables(newTemplate.content);
-    const template: Template = {
-      id: Date.now().toString(),
-      name: newTemplate.name,
-      content: newTemplate.content,
-      category: newTemplate.category || 'general',
-      variables,
-      created_at: new Date().toISOString()
-    };
-
-    setTemplates(prev => [...prev, template]);
-    setNewTemplate({ name: '', content: '', category: '' });
-    setIsCreating(false);
-    toast.success('Template saved successfully');
+    try {
+      await createTemplate({
+        name: newTemplate.name,
+        content: newTemplate.content,
+        category: newTemplate.category || 'general'
+      });
+      
+      setNewTemplate({ name: '', content: '', category: '' });
+      setIsCreateDialogOpen(false);
+    } catch (error) {
+      console.error('Create template error:', error);
+    }
   };
 
-  const handleUpdateTemplate = () => {
+  const handleUpdateTemplate = async () => {
     if (!editingTemplate) return;
 
-    const variables = extractVariables(editingTemplate.content);
-    const updatedTemplate = {
-      ...editingTemplate,
-      variables
-    };
-
-    setTemplates(prev => prev.map(t => t.id === editingTemplate.id ? updatedTemplate : t));
-    setEditingTemplate(null);
-    toast.success('Template updated successfully');
+    try {
+      await updateTemplate({
+        id: editingTemplate.id,
+        name: editingTemplate.name,
+        content: editingTemplate.content,
+        category: editingTemplate.category
+      });
+      
+      setEditingTemplate(null);
+    } catch (error) {
+      console.error('Update template error:', error);
+    }
   };
 
-  const handleDeleteTemplate = (id: string) => {
-    setTemplates(prev => prev.filter(t => t.id !== id));
-    toast.success('Template deleted successfully');
+  const handleDeleteTemplate = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this template?')) return;
+    
+    try {
+      await deleteTemplate(id);
+    } catch (error) {
+      console.error('Delete template error:', error);
+    }
   };
 
   const getCategoryColor = (category: string) => {
@@ -101,6 +87,18 @@ export function TemplateManager() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <Card className="border-0 shadow-lg bg-white/70 backdrop-blur-sm">
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -108,13 +106,17 @@ export function TemplateManager() {
           <h3 className="text-lg font-semibold">Message Templates</h3>
           <p className="text-sm text-gray-600">Create and manage reusable message templates</p>
         </div>
-        <Button onClick={() => setIsCreating(true)} className="flex items-center gap-2">
-          <Plus className="w-4 h-4" />
+        <Button 
+          onClick={() => setIsCreateDialogOpen(true)} 
+          disabled={isCreating}
+          className="flex items-center gap-2"
+        >
+          {isCreating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
           New Template
         </Button>
       </div>
 
-      {(isCreating || editingTemplate) && (
+      {(isCreateDialogOpen || editingTemplate) && (
         <Card className="border-0 shadow-lg bg-white/70 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -179,18 +181,24 @@ export function TemplateManager() {
             <div className="flex gap-2">
               <Button 
                 onClick={editingTemplate ? handleUpdateTemplate : handleSaveTemplate}
+                disabled={isCreating || isUpdating}
                 className="flex items-center gap-2"
               >
-                <Save className="w-4 h-4" />
+                {(isCreating || isUpdating) ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4" />
+                )}
                 {editingTemplate ? 'Update Template' : 'Save Template'}
               </Button>
               <Button 
                 variant="outline" 
                 onClick={() => {
-                  setIsCreating(false);
+                  setIsCreateDialogOpen(false);
                   setEditingTemplate(null);
                   setNewTemplate({ name: '', content: '', category: '' });
                 }}
+                disabled={isCreating || isUpdating}
               >
                 Cancel
               </Button>
@@ -235,9 +243,10 @@ export function TemplateManager() {
                     variant="ghost"
                     size="sm"
                     onClick={() => handleDeleteTemplate(template.id)}
+                    disabled={isDeleting}
                     className="text-red-600 hover:text-red-700"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                   </Button>
                 </div>
               </div>

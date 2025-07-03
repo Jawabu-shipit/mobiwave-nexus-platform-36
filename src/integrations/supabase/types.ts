@@ -1413,6 +1413,42 @@ export type Database = {
         }
         Relationships: []
       }
+      sms_templates: {
+        Row: {
+          category: string
+          content: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+          user_id: string | null
+          variables: string[] | null
+        }
+        Insert: {
+          category?: string
+          content: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+          user_id?: string | null
+          variables?: string[] | null
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+          user_id?: string | null
+          variables?: string[] | null
+        }
+        Relationships: []
+      }
       subscription_plans: {
         Row: {
           billing_cycle: string

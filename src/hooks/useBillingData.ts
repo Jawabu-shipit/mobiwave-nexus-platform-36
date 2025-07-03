@@ -40,10 +40,10 @@ export const useBillingData = () => {
       const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
       const { data: monthlyTransactions, error: monthlyError } = await supabase
         .from('credit_transactions')
-        .select('amount, transaction_type')
+        .select('amount, type')
         .eq('user_id', user.id)
         .gte('created_at', firstDayOfMonth.toISOString())
-        .eq('transaction_type', 'purchase');
+        .eq('type', 'purchase');
 
       // Type guard for transaction objects
       function isValidTransaction(t: any): t is { amount: number } {

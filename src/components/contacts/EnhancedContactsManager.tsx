@@ -5,11 +5,15 @@ import { ContactsManager } from './ContactsManager';
 import { ContactGroupManager } from './ContactGroupManager';
 import { ContactImportExport } from './ContactImportExport';
 import { ContactDuplicateDetector } from './ContactDuplicateDetector';
+import { EnhancedContactsBulkActions } from './EnhancedContactsBulkActions';
 import { Users, Upload, Search, UserPlus } from 'lucide-react';
 import { useContacts } from '@/hooks/useContacts';
+import { useContactsData } from '@/hooks/contacts/useContactsData';
 
 export function EnhancedContactsManager() {
   const { contacts = [], importContacts, mergeContacts } = useContacts();
+  const { data: contactsData = [] } = useContactsData();
+  const [selectedContacts, setSelectedContacts] = useState<any[]>([]);
 
   const handleImportContacts = async (contactsData: any[]) => {
     try {
@@ -59,6 +63,11 @@ export function EnhancedContactsManager() {
         </TabsList>
 
         <TabsContent value="contacts" className="space-y-4">
+          <EnhancedContactsBulkActions 
+            selectedContacts={selectedContacts}
+            onClearSelection={() => setSelectedContacts([])}
+            onRefresh={() => {}}
+          />
           <ContactsManager />
         </TabsContent>
 
