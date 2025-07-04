@@ -862,6 +862,93 @@ export type Database = {
           },
         ]
       }
+      notification_preferences: {
+        Row: {
+          created_at: string
+          email_notifications: boolean | null
+          id: string
+          marketing_notifications: boolean | null
+          notification_types: Json | null
+          push_notifications: boolean | null
+          sms_notifications: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_notifications?: boolean | null
+          id?: string
+          marketing_notifications?: boolean | null
+          notification_types?: Json | null
+          push_notifications?: boolean | null
+          sms_notifications?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email_notifications?: boolean | null
+          id?: string
+          marketing_notifications?: boolean | null
+          notification_types?: Json | null
+          push_notifications?: boolean | null
+          sms_notifications?: boolean | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          action_url: string | null
+          category: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          message: string
+          metadata: Json | null
+          priority: string
+          read_at: string | null
+          status: string
+          title: string
+          type: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          action_url?: string | null
+          category?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          message: string
+          metadata?: Json | null
+          priority?: string
+          read_at?: string | null
+          status?: string
+          title: string
+          type?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          action_url?: string | null
+          category?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          message?: string
+          metadata?: Json | null
+          priority?: string
+          read_at?: string | null
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       permissions: {
         Row: {
           action: string
@@ -1449,6 +1536,57 @@ export type Database = {
         }
         Relationships: []
       }
+      sub_users: {
+        Row: {
+          created_at: string
+          credits_allocated: number | null
+          credits_used: number | null
+          email: string
+          first_name: string | null
+          id: string
+          is_active: boolean
+          last_login_at: string | null
+          last_name: string | null
+          parent_user_id: string
+          permissions: Json | null
+          role: string
+          service_access: Json | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          credits_allocated?: number | null
+          credits_used?: number | null
+          email: string
+          first_name?: string | null
+          id?: string
+          is_active?: boolean
+          last_login_at?: string | null
+          last_name?: string | null
+          parent_user_id: string
+          permissions?: Json | null
+          role?: string
+          service_access?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          credits_allocated?: number | null
+          credits_used?: number | null
+          email?: string
+          first_name?: string | null
+          id?: string
+          is_active?: boolean
+          last_login_at?: string | null
+          last_name?: string | null
+          parent_user_id?: string
+          permissions?: Json | null
+          role?: string
+          service_access?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       subscription_plans: {
         Row: {
           billing_cycle: string
@@ -1844,6 +1982,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_settings: {
+        Row: {
+          auto_save: boolean | null
+          created_at: string
+          dashboard_layout: Json | null
+          id: string
+          language: string | null
+          session_timeout: number | null
+          theme: string | null
+          timezone: string | null
+          two_factor_enabled: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_save?: boolean | null
+          created_at?: string
+          dashboard_layout?: Json | null
+          id?: string
+          language?: string | null
+          session_timeout?: number | null
+          theme?: string | null
+          timezone?: string | null
+          two_factor_enabled?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_save?: boolean | null
+          created_at?: string
+          dashboard_layout?: Json | null
+          id?: string
+          language?: string | null
+          session_timeout?: number | null
+          theme?: string | null
+          timezone?: string | null
+          two_factor_enabled?: boolean | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       ussd_sessions: {
         Row: {
