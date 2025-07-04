@@ -166,39 +166,52 @@ export function ContactGroupManager() {
             <p className="text-sm">Create your first group to organize contacts</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {contactGroups.map((group) => (
-              <div key={group.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex-1">
-                    <h3 className="font-medium text-sm">{group.name}</h3>
-                    {group.description && (
-                      <p className="text-xs text-gray-500 mt-1">{group.description}</p>
-                    )}
-                  </div>
-                  <div className="flex gap-1">
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => startEditing(group)}
-                    >
-                      <Edit className="w-3 h-3" />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => handleDeleteGroup(group.id)}
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
+          <div className="space-y-4">
+            {/* List View */}
+            <div className="space-y-2">
+              {contactGroups.map((group) => (
+                <div key={group.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow bg-white">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className="p-2 rounded-full bg-purple-50">
+                        <Users className="w-4 h-4 text-purple-600" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-medium text-sm text-gray-900">{group.name}</h3>
+                        {group.description && (
+                          <p className="text-xs text-gray-500 mt-1">{group.description}</p>
+                        )}
+                        <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                          <span className="flex items-center gap-1">
+                            <UserPlus className="w-3 h-3" />
+                            {group.contact_count} contacts
+                          </span>
+                          <span>Created {new Date(group.created_at).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex gap-1">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => startEditing(group)}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Edit className="w-3 h-3" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleDeleteGroup(group.id)}
+                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between text-xs text-gray-500">
-                  <span>{group.contact_count} contacts</span>
-                  <span>{new Date(group.created_at).toLocaleDateString()}</span>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
 

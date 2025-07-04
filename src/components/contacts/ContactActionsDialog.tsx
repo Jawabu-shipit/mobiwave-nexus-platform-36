@@ -11,6 +11,7 @@ import { useContactGroups } from '@/hooks/contacts/useContactGroups';
 import { useContactMutations } from '@/hooks/contacts/useContactMutations';
 import { useContactGroupOperations } from '@/hooks/contacts/useContactGroupOperations';
 import { Contact } from '@/hooks/contacts/useContactsData';
+import { useUnifiedSMSService } from '@/hooks/useUnifiedSMSService';
 
 interface ContactActionsDialogProps {
   isOpen: boolean;
@@ -34,6 +35,7 @@ export function ContactActionsDialog({
   const { contactGroups } = useContactGroups();
   const { updateContact } = useContactMutations();
   const { bulkAddContactsToGroup } = useContactGroupOperations();
+  const { sendUnifiedSMS } = useUnifiedSMSService();
 
   const handleAction = async () => {
     if (selectedContacts.length === 0) {
@@ -98,11 +100,24 @@ export function ContactActionsDialog({
       return;
     }
 
-    // This is a placeholder for SMS sending functionality
-    // In a real implementation, this would integrate with your SMS service
-    toast.success(`Message prepared for ${selectedContacts.length} contacts. Integration with SMS service needed.`);
-    console.log('Message to send:', message);
-    console.log('Recipients:', selectedContacts.map(c => c.phone));
+    try {
+      const recipients = selectedContacts.map(contact => contact.phone);
+      
+      await sendUnifiedSMS({
+        recipients,
+        message: message.trim(),
+        campaignName: `Contact Message - ${new Date().toLocaleString()}`,
+        metadata: {
+          type: 'direct_contact_message',
+          contactCount: selectedContacts.length
+        }
+      });
+      
+      toast.success(`Message sent to ${selectedContacts.length} contacts successfully!`);
+    } catch (error: any) {
+      console.error('SMS sending error:', error);
+      toast.error(`Failed to send message: ${error.message}`);
+    }
   };
 
   const handleMoveToGroup = async () => {
