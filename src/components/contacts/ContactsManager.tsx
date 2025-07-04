@@ -6,19 +6,29 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Users, UserPlus, Search, Edit, Trash2, Upload, Download } from 'lucide-react';
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Users, UserPlus, Search, Edit, Trash2, Upload, Download, Send, UserCheck, UserX, Move } from 'lucide-react';
 import { useContactsData } from '@/hooks/contacts/useContactsData';
 import { useContactMutations } from '@/hooks/contacts/useContactMutations';
+import { useContactGroups } from '@/hooks/contacts/useContactGroups';
+import { CustomTagsInput } from './CustomTagsInput';
+import { ContactActionsDialog } from './ContactActionsDialog';
 import { toast } from 'sonner';
 
 export function ContactsManager() {
-  const { data: contacts = [], isLoading } = useContactsData();
+  const { data: contacts = [], isLoading, refetch } = useContactsData();
   const { createContact, updateContact, deleteContact, importContacts } = useContactMutations();
-  const contactGroups: any[] = [];
+  const { contactGroups } = useContactGroups();
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddContactOpen, setIsAddContactOpen] = useState(false);
   const [isAddGroupOpen, setIsAddGroupOpen] = useState(false);
   const [editingContact, setEditingContact] = useState<any>(null);
+  const [selectedContacts, setSelectedContacts] = useState<any[]>([]);
+  const [isActionsDialogOpen, setIsActionsDialogOpen] = useState(false);
+  const [currentActionType, setCurrentActionType] = useState<'activate' | 'deactivate' | 'message' | 'move' | null>(null);
+  const [selectedGroupFilter, setSelectedGroupFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
 
   const [newContact, setNewContact] = useState({
     first_name: '',
@@ -35,12 +45,20 @@ export function ContactsManager() {
     description: ''
   });
 
-  const filteredContacts = contacts.filter(contact =>
-    contact.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    contact.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    contact.phone.includes(searchTerm) ||
-    contact.email?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredContacts = contacts.filter(contact => {
+    const matchesSearch = 
+      contact.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      contact.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      contact.phone.includes(searchTerm) ||
+      contact.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      contact.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesStatus = statusFilter === 'all' || 
+      (statusFilter === 'active' && contact.is_active) ||
+      (statusFilter === 'inactive' && !contact.is_active);
+
+    return matchesSearch && matchesStatus;
+  });
 
   const handleAddContact = async () => {
     try {
@@ -325,6 +343,14 @@ export function ContactsManager() {
                         placeholder="john@example.com"
                       />
                     </div>
+                    <div>
+                      <CustomTagsInput
+                        tags={newContact.tags}
+                        onChange={(tags) => setNewContact({...newContact, tags})}
+                        label="Tags (Optional)"
+                        placeholder="Add tags to categorize this contact..."
+                      />
+                    </div>
                   </div>
                   <DialogFooter>
                     <Button onClick={handleAddContact}>Add Contact</Button>
@@ -339,17 +365,103 @@ export function ContactsManager() {
             <div className="relative flex-1">
               <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <Input 
-                placeholder="Search contacts..." 
+                placeholder="Search contacts, tags..." 
                 className="pl-10"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="inactive">Inactive</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+
+          {/* Bulk Actions Bar */}
+          {selectedContacts.length > 0 && (
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary">{selectedContacts.length} selected</Badge>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSelectedContacts([])}
+                  >
+                    Clear
+                  </Button>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setCurrentActionType('activate');
+                      setIsActionsDialogOpen(true);
+                    }}
+                  >
+                    <UserCheck className="w-4 h-4 mr-1" />
+                    Activate
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setCurrentActionType('deactivate');
+                      setIsActionsDialogOpen(true);
+                    }}
+                  >
+                    <UserX className="w-4 h-4 mr-1" />
+                    Deactivate
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setCurrentActionType('move');
+                      setIsActionsDialogOpen(true);
+                    }}
+                  >
+                    <Move className="w-4 h-4 mr-1" />
+                    Move to Group
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setCurrentActionType('message');
+                      setIsActionsDialogOpen(true);
+                    }}
+                  >
+                    <Send className="w-4 h-4 mr-1" />
+                    Send Message
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
 
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={selectedContacts.length === filteredContacts.length && filteredContacts.length > 0}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setSelectedContacts(filteredContacts);
+                      } else {
+                        setSelectedContacts([]);
+                      }
+                    }}
+                  />
+                </TableHead>
                 <TableHead>Contact</TableHead>
                 <TableHead>Phone</TableHead>
                 <TableHead>Email</TableHead>
@@ -359,7 +471,19 @@ export function ContactsManager() {
             </TableHeader>
             <TableBody>
               {filteredContacts.map((contact) => (
-                <TableRow key={contact.id}>
+                <TableRow key={contact.id} className={selectedContacts.find(c => c.id === contact.id) ? 'bg-blue-50' : ''}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedContacts.some(c => c.id === contact.id)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setSelectedContacts([...selectedContacts, contact]);
+                        } else {
+                          setSelectedContacts(selectedContacts.filter(c => c.id !== contact.id));
+                        }
+                      }}
+                    />
+                  </TableCell>
                   <TableCell>
                     <div>
                       <div className="font-medium">
@@ -393,6 +517,18 @@ export function ContactsManager() {
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => {
+                          setSelectedContacts([contact]);
+                          setCurrentActionType('message');
+                          setIsActionsDialogOpen(true);
+                        }}
+                        title="Send message"
+                      >
+                        <Send className="w-4 h-4" />
+                      </Button>
                       <Button 
                         variant="ghost" 
                         size="sm"
@@ -465,6 +601,29 @@ export function ContactsManager() {
                   placeholder="john@example.com"
                 />
               </div>
+              <div>
+                <CustomTagsInput
+                  tags={editingContact.tags || []}
+                  onChange={(tags) => setEditingContact({...editingContact, tags})}
+                  label="Tags"
+                  placeholder="Add tags to categorize this contact..."
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-status">Status</Label>
+                <Select
+                  value={editingContact.is_active ? 'active' : 'inactive'}
+                  onValueChange={(value) => setEditingContact({...editingContact, is_active: value === 'active'})}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           )}
           <DialogFooter>
@@ -472,6 +631,18 @@ export function ContactsManager() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Contact Actions Dialog */}
+      <ContactActionsDialog
+        isOpen={isActionsDialogOpen}
+        onClose={() => {
+          setIsActionsDialogOpen(false);
+          setCurrentActionType(null);
+        }}
+        selectedContacts={selectedContacts}
+        onRefresh={refetch}
+        actionType={currentActionType}
+      />
     </div>
   );
 }
