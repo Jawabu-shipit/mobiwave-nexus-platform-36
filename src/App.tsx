@@ -228,6 +228,16 @@ function App() {
                 }
               />
               <Route
+                path="/data-hub"
+                element={
+                  <ProtectedRoute>
+                    <RoleBasedRoute allowedRoles={["user"]}>
+                      <DataHub />
+                    </RoleBasedRoute>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/mpesa"
                 element={
                   <ProtectedRoute>
