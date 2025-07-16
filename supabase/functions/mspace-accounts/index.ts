@@ -69,7 +69,7 @@ export async function getApiCredentials(
 
   if (!username) {
     throw new Error(
-      `Username not found in additional_config for user ${userId}. Please re-configure your credentials with a username.`,
+      `Username not found in username column for user ${userId}. Please re-configure your credentials with a username.`,
     );
   }
 
