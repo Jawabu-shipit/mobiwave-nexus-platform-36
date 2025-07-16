@@ -34,23 +34,17 @@ export function MspaceDebugger() {
 
       console.log("Credentials check:", { credentials, credError });
 
-      // Test function call with detailed error info
-      try {
-        const { data, error } =
-          await supabase.functions.invoke("mspace-balance");
-        console.log("Function call result:", { data, error });
+      // Test multiple functions to isolate the issue
+      const testFunctions = async () => {
+        const results: any = {};
 
-        setDebugInfo({
-          user: {
-            id: user.id,
-            email: user.email,
-          },
-          credentials: {
-            found: credentials && credentials.length > 0,
-            count: credentials?.length || 0,
-            error: credError?.message,
-          },
-          functionCall: {
+        // Test simple function first
+        try {
+          const { data, error } = await supabase.functions.invoke(
+            "test-mspace-balance",
+          );
+          console.log("Test function result:", { data, error });
+          results.testFunction = {
             success: !error,
             data,
             error: error
@@ -61,26 +55,83 @@ export function MspaceDebugger() {
                   code: error.code,
                 }
               : null,
-          },
-        });
-      } catch (funcError: any) {
-        console.error("Function call failed:", funcError);
-        setDebugInfo({
-          user: {
-            id: user.id,
-            email: user.email,
-          },
-          credentials: {
-            found: credentials && credentials.length > 0,
-            count: credentials?.length || 0,
-            error: credError?.message,
-          },
-          functionCall: {
+          };
+        } catch (testError: any) {
+          console.error("Test function failed:", testError);
+          results.testFunction = {
             success: false,
-            error: funcError.message || "Unknown function error",
-          },
-        });
-      }
+            error: testError.message || "Test function error",
+          };
+        }
+
+        // Test simplified mspace function
+        try {
+          const { data, error } = await supabase.functions.invoke(
+            "mspace-balance-simple",
+          );
+          console.log("Simple function result:", { data, error });
+          results.simpleFunction = {
+            success: !error,
+            data,
+            error: error
+              ? {
+                  message: error.message,
+                  details: error.details,
+                  hint: error.hint,
+                  code: error.code,
+                }
+              : null,
+          };
+        } catch (simpleError: any) {
+          console.error("Simple function failed:", simpleError);
+          results.simpleFunction = {
+            success: false,
+            error: simpleError.message || "Simple function error",
+          };
+        }
+
+        // Test original function
+        try {
+          const { data, error } =
+            await supabase.functions.invoke("mspace-balance");
+          console.log("Original function result:", { data, error });
+          results.originalFunction = {
+            success: !error,
+            data,
+            error: error
+              ? {
+                  message: error.message,
+                  details: error.details,
+                  hint: error.hint,
+                  code: error.code,
+                }
+              : null,
+          };
+        } catch (funcError: any) {
+          console.error("Original function failed:", funcError);
+          results.originalFunction = {
+            success: false,
+            error: funcError.message || "Original function error",
+          };
+        }
+
+        return results;
+      };
+
+      const functionResults = await testFunctions();
+
+      setDebugInfo({
+        user: {
+          id: user.id,
+          email: user.email,
+        },
+        credentials: {
+          found: credentials && credentials.length > 0,
+          count: credentials?.length || 0,
+          error: credError?.message,
+        },
+        functionTests: functionResults,
+      });
     } catch (error: any) {
       console.error("Debug check failed:", error);
       setDebugInfo({
