@@ -34,9 +34,10 @@ export function MspaceCreditsManager() {
     }
   };
 
-  useEffect(() => {
-    loadBalance();
-  }, []);
+  // Temporarily disabled automatic loading to fix 500 errors
+  // useEffect(() => {
+  //   loadBalance();
+  // }, []);
 
   const formatBalance = (balance: number | null) => {
     if (balance === null) return "Loading...";
