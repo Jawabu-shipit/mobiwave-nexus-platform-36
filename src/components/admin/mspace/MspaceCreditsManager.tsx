@@ -11,6 +11,7 @@ import { RefreshCw, CreditCard, AlertCircle } from "lucide-react";
 import { useMspaceBalance } from "@/hooks/mspace/useMspaceBalance";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { MspaceDebugger } from "./MspaceDebugger";
 
 export function MspaceCreditsManager() {
   const [balance, setBalance] = useState<number | null>(null);
