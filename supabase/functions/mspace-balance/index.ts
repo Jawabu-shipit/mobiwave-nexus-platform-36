@@ -228,15 +228,19 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error("Error in mspace-balance function:", error);
-    return new Response(
-      JSON.stringify({
-        error: error instanceof Error ? error.message : String(error),
-        timestamp: new Date().toISOString(),
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      },
-    );
+
+    const errorResponse = {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+      function_name: "mspace-balance",
+    };
+
+    console.log("Returning error response:", errorResponse);
+
+    return new Response(JSON.stringify(errorResponse), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
