@@ -1,0 +1,47 @@
+# Mobiwave Nexus Platform Robots.txt
+# https://mobiwave.io
+
+# Allow all crawlers
+User-agent: *
+Allow: /
+Allow: /services
+Allow: /pricing
+Allow: /about
+Allow: /contact
+
+# Disallow admin and authenticated routes
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /settings/
+Disallow: /billing/
+Disallow: /my-services/
+Disallow: /service-requests/
+Disallow: /contacts/
+Disallow: /analytics/
+Disallow: /bulk-sms/
+Disallow: /whatsapp/
+Disallow: /email/
+Disallow: /service-desk/
+Disallow: /ussd/
+Disallow: /mpesa/
+Disallow: /shortcode/
+
+# Special rules for specific bots
+User-agent: Googlebot
+Allow: /
+Disallow: /auth
+
+User-agent: Bingbot
+Allow: /
+Disallow: /auth
+
+User-agent: Twitterbot
+Allow: /
+Allow: /public/mobiwave-og-image.jpg
+
+User-agent: facebookexternalhit
+Allow: /
+Allow: /public/mobiwave-og-image.jpg
+
+# Sitemap location
+Sitemap: https://mobiwave.io/sitemap.xml
