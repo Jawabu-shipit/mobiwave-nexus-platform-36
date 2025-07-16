@@ -219,8 +219,42 @@ serve(async (req) => {
       } else {
         throw new Error("Invalid balance response format: " + responseText);
       }
+        }
+
+    // Ensure we have a valid balance
+    if (
+      typeof balanceData.balance === "undefined" &&
+      typeof balanceData === "number"
+    ) {
+      balanceData = { balance: balanceData, status: "success" };
     }
-          } else if (postResponse.status === 505) {
+
+    if (typeof balanceData.balance === "undefined") {
+      throw new Error("Balance not found in API response");
+    }
+
+    console.log("Final balance data:", balanceData);
+
+    return new Response(JSON.stringify(balanceData), {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("Error in mspace-balance function:", error);
+    return new Response(
+      JSON.stringify({
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString(),
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
+    );
+  }
+})
+
+// Remove this extra part if exists
             // If we get a 505 error, try XML format
             console.log("Got 505 error, trying POST with XML format");
             try {
