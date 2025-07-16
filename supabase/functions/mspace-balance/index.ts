@@ -144,12 +144,8 @@ serve(async (req) => {
             );
           }
           apiKey = await decryptApiKey(encryptedApiKey);
-          // Get username from additional_config
-          const config = credentials.additional_config as Record<
-            string,
-            unknown
-          >;
-          username = config?.username as string;
+          // Get username from the username column directly
+          username = credentials.username as string;
         } else {
           throw new Error(
             `No user-specific credentials found for user: ${userId}`,
