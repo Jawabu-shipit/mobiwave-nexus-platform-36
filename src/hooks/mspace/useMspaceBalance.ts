@@ -30,8 +30,8 @@ export const useMspaceBalance = () => {
       const balanceOperation = async () => {
         console.log("Checking SMS balance...");
 
-        const { data, error } =
-          await supabase.functions.invoke("mspace-balance");
+        const response = await supabase.functions.invoke("mspace-balance");
+        const { data, error } = response;
 
         if (error) {
           console.error("Balance check error from Supabase function:", error);
