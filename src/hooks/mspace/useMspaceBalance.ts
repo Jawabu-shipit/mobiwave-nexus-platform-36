@@ -35,6 +35,12 @@ export const useMspaceBalance = () => {
 
         if (error) {
           console.error("Balance check error from Supabase function:", error);
+          console.error("Error details:", {
+            message: error.message,
+            details: error.details,
+            hint: error.hint,
+            code: error.code,
+          });
 
           // Handle specific error cases
           if (
