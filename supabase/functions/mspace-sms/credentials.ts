@@ -86,10 +86,9 @@ export async function getApiCredentials(authHeader: string) {
     );
   }
 
-  // Get username from additional_config
-  const config = credentials.additional_config as Record<string, unknown>;
-  const username = config?.username as string;
-  const defaultSenderId = (config?.sender_id as string) || "MOBIWAVE";
+  // Get username from the username column directly
+  const username = credentials.username as string;
+  const defaultSenderId = (credentials.sender_id as string) || "MOBIWAVE";
 
   if (!username) {
     throw new Error(
