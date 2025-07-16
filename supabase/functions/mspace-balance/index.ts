@@ -110,19 +110,22 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
-    // Authenticate user and get user-specific credentials ONLY from the table
+    // Authenticate user and get user-specific credentials
     let apiKey: string | undefined = undefined;
     let username: string | undefined = undefined;
     let userId: string | undefined = undefined;
+
     try {
       const {
         data: { user },
         error: authError,
       } = await supabase.auth.getUser(authHeader.replace("Bearer ", ""));
+
       if (!authError && user) {
         userId = user.id;
         console.log("User authenticated:", userId);
-        // Try to get user-specific API credentials
+
+        // Get user-specific API credentials
         const { data: credentials, error: credError } = await supabase
           .from("api_credentials")
           .select("*")
@@ -130,9 +133,10 @@ serve(async (req) => {
           .eq("service_name", "mspace")
           .eq("is_active", true)
           .single();
+
         if (!credError && credentials) {
           console.log("Using user-specific credentials");
-          // Decrypt the API key from api_key_encrypted
+          // Decrypt the API key
           const encryptedApiKey = credentials.api_key_encrypted as string;
           if (!encryptedApiKey) {
             throw new Error(
@@ -140,7 +144,7 @@ serve(async (req) => {
             );
           }
           apiKey = await decryptApiKey(encryptedApiKey);
-          // Username can still be stored in additional_config
+          // Get username from additional_config
           const config = credentials.additional_config as Record<
             string,
             unknown
@@ -164,29 +168,28 @@ serve(async (req) => {
       );
     }
 
-        console.log("Checking balance with API key");
+    console.log("Checking balance with API key for user:", username);
 
     // Use the correct mspace API format from documentation
     console.log("Making balance request to mspace API");
-    const response = await fetch(
-      "https://api.mspace.co.ke/smsapi/v2/balance",
-      {
-        method: "POST",
-        headers: {
-          apikey: apiKey,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({ apikey: apiKey }),
+    const response = await fetch("https://api.mspace.co.ke/smsapi/v2/balance", {
+      method: "POST",
+      headers: {
+        apikey: apiKey,
+        "Content-Type": "application/json",
+        Accept: "application/json",
       },
-    );
+      body: JSON.stringify({ apikey: apiKey }),
+    });
 
     const responseText = await response.text();
     console.log("Balance response status:", response.status);
     console.log("Balance response body:", responseText);
 
     if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}: ${response.statusText}. Response: ${responseText}`);
+      throw new Error(
+        `API request failed with status ${response.status}: ${response.statusText}. Response: ${responseText}`,
+      );
     }
 
     // Parse response according to mspace documentation
@@ -195,7 +198,7 @@ serve(async (req) => {
       balanceData = JSON.parse(responseText);
 
       // Ensure we have a balance field
-      if (typeof balanceData.balance !== 'undefined') {
+      if (typeof balanceData.balance !== "undefined") {
         // Success - normalize the response format
         balanceData = {
           balance: parseInt(balanceData.balance),
@@ -219,229 +222,6 @@ serve(async (req) => {
       } else {
         throw new Error("Invalid balance response format: " + responseText);
       }
-        }
-
-    // Ensure we have a valid balance
-    if (
-      typeof balanceData.balance === "undefined" &&
-      typeof balanceData === "number"
-    ) {
-      balanceData = { balance: balanceData, status: "success" };
-    }
-
-    if (typeof balanceData.balance === "undefined") {
-      throw new Error("Balance not found in API response");
-    }
-
-    console.log("Final balance data:", balanceData);
-
-    return new Response(JSON.stringify(balanceData), {
-      status: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  } catch (error) {
-    console.error("Error in mspace-balance function:", error);
-    return new Response(
-      JSON.stringify({
-        error: error instanceof Error ? error.message : String(error),
-        timestamp: new Date().toISOString(),
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      },
-    );
-  }
-})
-
-// Remove this extra part if exists
-            // If we get a 505 error, try XML format
-            console.log("Got 505 error, trying POST with XML format");
-            try {
-              const xmlResponse = await fetch(
-                "https://api.mspace.co.ke/smsapi/v2/balance",
-                {
-                  method: "POST",
-                  headers: {
-                    apikey: apiKey,
-                    "Content-Type": "application/xml",
-                    Accept: "application/xml",
-                  },
-                  body: `<user><username>${username}</username></user>`,
-                },
-              );
-
-              console.log(
-                "XML POST response status:",
-                xmlResponse.status,
-                xmlResponse.statusText,
-              );
-              const xmlResponseText = await xmlResponse.text();
-              console.log("XML POST response body:", xmlResponseText);
-
-              if (xmlResponse.ok) {
-                // Try to parse as number first
-                const balance = parseInt(xmlResponseText.trim());
-                if (!isNaN(balance)) {
-                  balanceData = { balance, status: "success" };
-                  break;
-                }
-
-                // If not a number, check if it's XML with balance tag
-                if (xmlResponseText.includes("<balance>")) {
-                  const balanceMatch = xmlResponseText.match(
-                    /<balance>(.*?)<\/balance>/,
-                  );
-                  if (balanceMatch && balanceMatch[1]) {
-                    const balance = parseInt(balanceMatch[1].trim());
-                    if (!isNaN(balance)) {
-                      balanceData = { balance, status: "success" };
-                      break;
-                    }
-                  }
-                }
-              }
-            } catch (xmlError) {
-              console.log("XML request failed:", xmlError);
-            }
-          } else {
-            console.log(
-              `POST request failed with status ${postResponse.status}: ${postResponse.statusText}`,
-            );
-            // Continue to try GET method
-          }
-        } catch (postError) {
-          console.log("POST method failed, trying GET method:", postError);
-          // Continue to try GET method
-        }
-
-        // Try GET method with format from documentation
-        try {
-          console.log("Trying GET method with format from documentation");
-          const getUrl1 = `https://api.mspace.co.ke/smsapi/v2/balance/apikey=${apiKey}/username=${username}`;
-          console.log("GET URL (format 1):", getUrl1);
-
-          const getResponse1 = await fetch(getUrl1);
-          const responseText1 = await getResponse1.text();
-          console.log(
-            "GET Balance response status (format 1):",
-            getResponse1.status,
-          );
-          console.log("GET Balance response body (format 1):", responseText1);
-
-          if (getResponse1.ok) {
-            try {
-              balanceData = JSON.parse(responseText1);
-            } catch {
-              const balance = parseInt(responseText1.trim());
-              if (isNaN(balance)) {
-                throw new Error("Invalid balance response format");
-              }
-              balanceData = { balance, status: "success" };
-            }
-
-            // If we got valid data, break out of the retry loop
-            break;
-          } else {
-            console.log(
-              `GET request (format 1) failed with status ${getResponse1.status}: ${getResponse1.statusText}`,
-            );
-            // Try alternative GET format
-          }
-        } catch (getError1) {
-          console.log(
-            "GET method (format 1) failed, trying alternative format:",
-            getError1,
-          );
-          // Try alternative GET format
-        }
-
-        // Try GET method with standard query parameters
-        try {
-          console.log("Trying GET method with standard query parameters");
-          const getUrl2 = `https://api.mspace.co.ke/smsapi/v2/balance?apikey=${apiKey}&username=${username}`;
-          console.log("GET URL (format 2):", getUrl2);
-
-          const getResponse2 = await fetch(getUrl2);
-          const responseText2 = await getResponse2.text();
-          console.log(
-            "GET Balance response status (format 2):",
-            getResponse2.status,
-          );
-          console.log("GET Balance response body (format 2):", responseText2);
-
-          if (getResponse2.ok) {
-            try {
-              balanceData = JSON.parse(responseText2);
-            } catch {
-              const balance = parseInt(responseText2.trim());
-              if (isNaN(balance)) {
-                throw new Error("Invalid balance response format");
-              }
-              balanceData = { balance, status: "success" };
-            }
-
-            // If we got valid data, break out of the retry loop
-            break;
-          } else {
-            console.log(
-              `GET request (format 2) failed with status ${getResponse2.status}: ${getResponse2.statusText}`,
-            );
-
-            // If this is the last attempt, throw an error
-            if (attempt === maxRetries - 1) {
-              throw new Error(
-                `All request methods failed after ${maxRetries} attempts`,
-              );
-            }
-
-            // Otherwise, wait before retrying
-            const delay = Math.min(1000 * Math.pow(2, attempt), 10000);
-            console.log(`Retrying in ${delay}ms...`);
-            await new Promise((resolve) => setTimeout(resolve, delay));
-          }
-        } catch (getError2) {
-          console.log("GET method (format 2) failed:", getError2);
-
-          // If this is the last attempt, throw an error
-          if (attempt === maxRetries - 1) {
-            throw new Error(
-              `All request methods failed after ${maxRetries} attempts: ${getError2.message}`,
-            );
-          }
-
-          // Otherwise, wait before retrying
-          const delay = Math.min(1000 * Math.pow(2, attempt), 10000);
-          console.log(`Retrying in ${delay}ms...`);
-          await new Promise((resolve) => setTimeout(resolve, delay));
-        }
-      } catch (attemptError) {
-        console.error(`Attempt ${attempt + 1} failed:`, attemptError);
-
-        // If this is the last attempt, throw an error
-        if (attempt === maxRetries - 1) {
-          throw new Error(
-            `Balance check failed after ${maxRetries} attempts: ${attemptError.message}`,
-          );
-        }
-
-        // Otherwise, wait before retrying
-        const delay = Math.min(1000 * Math.pow(2, attempt), 10000);
-        console.log(`Retrying in ${delay}ms...`);
-        await new Promise((resolve) => setTimeout(resolve, delay));
-      }
-    }
-
-    // Ensure we have a valid balance
-    if (
-      typeof balanceData.balance === "undefined" &&
-      typeof balanceData === "number"
-    ) {
-      balanceData = { balance: balanceData, status: "success" };
-    }
-
-    if (typeof balanceData.balance === "undefined") {
-      throw new Error("Balance not found in API response");
     }
 
     console.log("Final balance data:", balanceData);
