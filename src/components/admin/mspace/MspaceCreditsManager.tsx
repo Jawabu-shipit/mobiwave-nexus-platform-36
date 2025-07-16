@@ -165,7 +165,10 @@ export function MspaceCreditsManager() {
         </CardContent>
       </Card>
 
-      <MspaceDebugger />
+      <div className="border-t pt-6">
+        <h3 className="text-lg font-semibold mb-4">Debug Information</h3>
+        <MspaceDebugger />
+      </div>
     </div>
   );
 }
