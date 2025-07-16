@@ -123,7 +123,9 @@ serve(async (req) => {
     const username = credentials.username as string;
 
     if (!username) {
-      console.error(`Username not found for user ${user.id}`);
+      console.error(
+        `Username not found in username column for user ${user.id}`,
+      );
       return new Response("CON Service configuration error", {
         headers: { ...corsHeaders, "Content-Type": "text/plain" },
       });
