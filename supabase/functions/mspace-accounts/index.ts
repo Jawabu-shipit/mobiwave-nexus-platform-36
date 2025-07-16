@@ -64,9 +64,8 @@ export async function getApiCredentials(
     );
   }
 
-  // Get username from additional_config
-  const config = credentials.additional_config as Record<string, unknown>;
-  const username = config?.username as string;
+  // Get username from the username column directly
+  const username = credentials.username as string;
 
   if (!username) {
     throw new Error(
