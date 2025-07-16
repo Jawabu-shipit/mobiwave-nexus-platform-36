@@ -164,51 +164,62 @@ serve(async (req) => {
       );
     }
 
-    console.log("Checking balance for user:", username);
+        console.log("Checking balance with API key");
 
-    // Try POST method first (more reliable according to docs)
+    // Use the correct mspace API format from documentation
+    console.log("Making balance request to mspace API");
+    const response = await fetch(
+      "https://api.mspace.co.ke/smsapi/v2/balance",
+      {
+        method: "POST",
+        headers: {
+          apikey: apiKey,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({ apikey: apiKey }),
+      },
+    );
+
+    const responseText = await response.text();
+    console.log("Balance response status:", response.status);
+    console.log("Balance response body:", responseText);
+
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}: ${response.statusText}. Response: ${responseText}`);
+    }
+
+    // Parse response according to mspace documentation
     let balanceData;
-    const maxRetries = 3;
+    try {
+      balanceData = JSON.parse(responseText);
 
-    for (let attempt = 0; attempt < maxRetries; attempt++) {
-      try {
-        console.log(`Attempt ${attempt + 1}/${maxRetries} to check balance`);
-
-        // Try POST method first
-        try {
-          console.log("Trying POST method for balance check");
-          const postResponse = await fetch(
-            "https://api.mspace.co.ke/smsapi/v2/balance",
-            {
-              method: "POST",
-              headers: {
-                apikey: apiKey,
-                "Content-Type": "application/json",
-                Accept: "application/json",
-              },
-              body: JSON.stringify({ apikey: apiKey }),
-            },
-          );
-
-          const responseText = await postResponse.text();
-          console.log("POST Balance response status:", postResponse.status);
-          console.log("POST Balance response body:", responseText);
-
-          if (postResponse.ok) {
-            // Parse response - it might be just a number or JSON
-            try {
-              balanceData = JSON.parse(responseText);
-            } catch {
-              // If not JSON, treat as plain number
-              const balance = parseInt(responseText.trim());
-              if (isNaN(balance)) {
-                throw new Error("Invalid balance response format");
-              }
-              balanceData = { balance, status: "success" };
-            }
-
-            // If we got valid data, break out of the retry loop
-            break;
+      // Ensure we have a balance field
+      if (typeof balanceData.balance !== 'undefined') {
+        // Success - normalize the response format
+        balanceData = {
+          balance: parseInt(balanceData.balance),
+          status: "success",
+          currency: balanceData.currency || "KES",
+          timestamp: new Date().toISOString(),
+        };
+      } else {
+        throw new Error("Invalid response format: missing balance field");
+      }
+    } catch (parseError) {
+      // If not JSON, try to parse as plain number (fallback)
+      const balance = parseInt(responseText.trim());
+      if (!isNaN(balance)) {
+        balanceData = {
+          balance,
+          status: "success",
+          currency: "KES",
+          timestamp: new Date().toISOString(),
+        };
+      } else {
+        throw new Error("Invalid balance response format: " + responseText);
+      }
+    }
           } else if (postResponse.status === 505) {
             // If we get a 505 error, try XML format
             console.log("Got 505 error, trying POST with XML format");
