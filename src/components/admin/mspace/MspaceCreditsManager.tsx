@@ -12,7 +12,7 @@ import { useMspaceBalance } from "@/hooks/mspace/useMspaceBalance";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { MspaceDebugger } from "./MspaceDebugger";
-import { MspaceCredentialsSetup } from "./MspaceCredentialsSetup";
+// MspaceCredentialsSetup removed - using existing ApiCredentialsTab instead
 
 export function MspaceCreditsManager() {
   const [balance, setBalance] = useState<number | null>(null);
