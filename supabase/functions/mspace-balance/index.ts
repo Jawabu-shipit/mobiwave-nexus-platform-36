@@ -155,7 +155,7 @@ serve(async (req) => {
           }
         } else {
           throw new Error(
-            `No user-specific credentials found for user: ${userId}`,
+            `No user-specific credentials found for user: ${userId}. Error: ${credError?.message || "No credentials found"}`,
           );
         }
       } else {
