@@ -136,6 +136,16 @@ serve(async (req) => {
 
         if (!credError && credentials) {
           console.log("Using user-specific credentials");
+          console.log("Credentials structure:", {
+            id: credentials.id,
+            service_name: credentials.service_name,
+            has_api_key_encrypted: !!credentials.api_key_encrypted,
+            has_username: !!credentials.username,
+            has_additional_config: !!credentials.additional_config,
+            is_active: credentials.is_active,
+            columns: Object.keys(credentials),
+          });
+
           // Decrypt the API key
           const encryptedApiKey = credentials.api_key_encrypted as string;
           if (!encryptedApiKey) {
