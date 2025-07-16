@@ -23,8 +23,13 @@ export function MspaceCreditsManager() {
       setBalance(balanceData.balance);
       setLastUpdated(balanceData.timestamp || new Date().toISOString());
       toast.success("Balance updated successfully");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to load balance:", error);
+      if (error.message?.includes("credentials not configured")) {
+        toast.error("Please configure your Mspace API credentials first");
+      } else {
+        toast.error("Failed to load balance: " + error.message);
+      }
     }
   };
 
