@@ -162,7 +162,13 @@ serve(async (req) => {
               unknown
             >;
             username = config?.username as string;
+            console.log("Tried additional_config for username:", {
+              config,
+              username,
+            });
           }
+
+          console.log("Final username value:", username);
         } else {
           throw new Error(
             `No user-specific credentials found for user: ${userId}. Error: ${credError?.message || "No credentials found"}`,
