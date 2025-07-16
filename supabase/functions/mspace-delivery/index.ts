@@ -150,7 +150,7 @@ serve(async (req) => {
     if (!username) {
       return new Response(
         JSON.stringify({
-          error: `Username not found in additional_config for user ${user.id}. Please re-configure your credentials with a username.`,
+          error: `Username not found in username column for user ${user.id}. Please re-configure your credentials with a username.`,
         }),
         {
           status: 400,
