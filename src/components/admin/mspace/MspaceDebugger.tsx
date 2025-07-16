@@ -38,7 +38,33 @@ export function MspaceDebugger() {
       const testFunctions = async () => {
         const results: any = {};
 
-        // Test simple function first
+        // Test debug credentials function first
+        try {
+          const { data, error } = await supabase.functions.invoke(
+            "debug-mspace-credentials",
+          );
+          console.log("Debug credentials result:", { data, error });
+          results.debugCredentials = {
+            success: !error,
+            data,
+            error: error
+              ? {
+                  message: error.message,
+                  details: error.details,
+                  hint: error.hint,
+                  code: error.code,
+                }
+              : null,
+          };
+        } catch (debugError: any) {
+          console.error("Debug credentials function failed:", debugError);
+          results.debugCredentials = {
+            success: false,
+            error: debugError.message || "Debug credentials error",
+          };
+        }
+
+        // Test simple function
         try {
           const { data, error } = await supabase.functions.invoke(
             "test-mspace-balance",
