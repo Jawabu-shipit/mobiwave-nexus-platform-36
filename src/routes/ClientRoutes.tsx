@@ -1,27 +1,26 @@
-
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import { RoleBasedRoute } from '../components/auth/RoleBasedRoute';
-import ClientDashboard from '../pages/ClientDashboard';
-import PlanManagement from '../pages/PlanManagement';
-import Help from '../pages/Help';
-import Analytics from '../pages/Analytics';
-import BulkSMS from '../pages/BulkSMS';
-import Contacts from '../pages/Contacts';
-import WhatsAppCampaigns from '../pages/WhatsAppCampaigns';
-import EmailCampaigns from '../pages/EmailCampaigns';
-import CampaignAnalytics from '../pages/CampaignAnalytics';
-import ProfileSettings from '../pages/ProfileSettings';
-import BillingDashboard from '../pages/BillingDashboard';
-import SurveyBuilder from '../pages/SurveyBuilder';
-import Surveys from '../pages/Surveys';
-import ServiceDesk from '../pages/ServiceDesk';
-import USSDServices from '../pages/USSDServices';
-import MpesaServices from '../pages/MpesaServices';
-import ServiceRequests from '../pages/ServiceRequests';
-import MyServices from '../pages/MyServices';
-import Shortcode from '../pages/Shortcode';
-import DataHubPage from '../pages/DataHub';
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import { RoleBasedRoute } from "../components/auth/RoleBasedRoute";
+import ClientDashboard from "../pages/ClientDashboard";
+import PlanManagement from "../pages/PlanManagement";
+import Help from "../pages/Help";
+import Analytics from "../pages/Analytics";
+import BulkSMS from "../pages/BulkSMS";
+import Contacts from "../pages/Contacts";
+import WhatsAppCampaigns from "../pages/WhatsAppCampaigns";
+import EmailCampaigns from "../pages/EmailCampaigns";
+import CampaignAnalytics from "../pages/CampaignAnalytics";
+import ProfileSettings from "../pages/ProfileSettings";
+import BillingDashboard from "../pages/BillingDashboard";
+import SurveyBuilder from "../pages/SurveyBuilder";
+import Surveys from "../pages/Surveys";
+import ServiceDesk from "../pages/ServiceDesk";
+import USSDServices from "../pages/USSDServices";
+import MpesaServices from "../pages/MpesaServices";
+import ServiceRequests from "../pages/ServiceRequests";
+import MyServices from "../pages/MyServices";
+import Shortcode from "../pages/Shortcode";
+import DataHubPage from "../pages/DataHub";
 
 export function ClientRoutes() {
   return (
