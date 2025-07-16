@@ -163,6 +163,8 @@ export function MspaceCreditsManager() {
           </div>
         </CardContent>
       </Card>
+
+      <MspaceDebugger />
     </div>
   );
 }
