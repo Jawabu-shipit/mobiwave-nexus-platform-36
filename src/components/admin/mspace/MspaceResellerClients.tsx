@@ -46,6 +46,80 @@ export function MspaceResellerClients() {
     }
   };
 
+  const testManualCredentials = async () => {
+    if (!manualApiKey.trim() || !manualUsername.trim()) {
+      toast.error("Please enter both API key and username");
+      return;
+    }
+
+    setIsTestingManual(true);
+    try {
+      console.log("Testing manual credentials for reseller clients");
+
+      const response = await fetch(
+        "https://api.mspace.co.ke/smsapi/v2/resellerclients",
+        {
+          method: "POST",
+          headers: {
+            apikey: manualApiKey.trim(),
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            apikey: manualApiKey.trim(),
+            username: manualUsername.trim(),
+          }),
+        },
+      );
+
+      const responseText = await response.text();
+      console.log("Manual reseller clients response:", {
+        status: response.status,
+        body: responseText,
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Mspace API error (${response.status}): ${responseText}`,
+        );
+      }
+
+      try {
+        const data = JSON.parse(responseText);
+
+        // Handle different response formats
+        let clientsData: ResellerClient[];
+        if (Array.isArray(data)) {
+          clientsData = data;
+        } else if (
+          data.resellerClients &&
+          Array.isArray(data.resellerClients)
+        ) {
+          clientsData = data.resellerClients;
+        } else {
+          console.warn("Unexpected reseller clients response format:", data);
+          clientsData = [];
+        }
+
+        setClients(clientsData);
+        setLastUpdated(new Date().toISOString());
+        toast.success(
+          `Found ${clientsData.length} reseller clients - Manual credentials working!`,
+        );
+      } catch (parseError) {
+        console.error("Failed to parse reseller clients response:", parseError);
+        throw new Error(
+          "Invalid reseller clients response format: " + responseText,
+        );
+      }
+    } catch (error: any) {
+      console.error("Manual reseller clients test failed:", error);
+      toast.error(`Test failed: ${error.message}`);
+    } finally {
+      setIsTestingManual(false);
+    }
+  };
+
   const formatBalance = (balance: string) => {
     const numBalance = parseInt(balance);
     return isNaN(numBalance) ? balance : numBalance.toLocaleString();
