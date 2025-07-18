@@ -19,6 +19,10 @@ import { MspaceDebugger } from "./MspaceDebugger";
 export function MspaceCreditsManager() {
   const [balance, setBalance] = useState<number | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [manualApiKey, setManualApiKey] = useState("");
+  const [manualUsername, setManualUsername] = useState("");
+  const [useManualCredentials, setUseManualCredentials] = useState(false);
+  const [isTestingManual, setIsTestingManual] = useState(false);
   const { checkBalance, hasCredentials, credentialsError, isLoading } =
     useMspaceDirectApi();
 
