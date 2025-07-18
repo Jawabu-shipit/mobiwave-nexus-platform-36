@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { MspaceDebugger } from "./MspaceDebugger";
+import { MspaceAPITester } from "./MspaceAPITester";
 // MspaceCredentialsSetup removed - using existing ApiCredentialsTab instead
 
 export function MspaceCreditsManager() {
