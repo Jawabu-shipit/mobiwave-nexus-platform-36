@@ -14,87 +14,90 @@ import { MspaceResellerClients } from "./MspaceResellerClients";
 import { MspaceAPITester } from "./MspaceAPITester";
 import { MspaceIntegrationStatus } from "./MspaceIntegrationStatus";
 import { SubUsersManager } from "./SubUsersManager";
+import { MspaceErrorBoundary } from "./MspaceErrorBoundary";
 
 export function MspaceDashboard() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">
-          Mspace Integration
-        </h1>
-        <p className="text-muted-foreground">
-          Manage your Mspace SMS API integration, credits, and client accounts
-        </p>
+    <MspaceErrorBoundary>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Mspace Integration
+          </h1>
+          <p className="text-muted-foreground">
+            Manage your Mspace SMS API integration, credits, and client accounts
+          </p>
+        </div>
+
+        {/* Integration Status */}
+        <MspaceIntegrationStatus />
+
+        {/* Main Dashboard */}
+        <Tabs defaultValue="credits" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="credits" className="flex items-center gap-2">
+              <CreditCard className="h-4 w-4" />
+              Credits
+            </TabsTrigger>
+            <TabsTrigger value="clients" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Reseller Clients
+            </TabsTrigger>
+            <TabsTrigger value="subusers" className="flex items-center gap-2">
+              <Database className="h-4 w-4" />
+              Sub Users
+            </TabsTrigger>
+            <TabsTrigger value="testing" className="flex items-center gap-2">
+              <TestTube className="h-4 w-4" />
+              API Testing
+            </TabsTrigger>
+            <TabsTrigger value="status" className="flex items-center gap-2">
+              <Activity className="h-4 w-4" />
+              Integration
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="credits" className="space-y-4">
+            <MspaceCreditsManager />
+          </TabsContent>
+
+          <TabsContent value="clients" className="space-y-4">
+            <MspaceResellerClients />
+          </TabsContent>
+
+          <TabsContent value="subusers" className="space-y-4">
+            <SubUsersManager />
+          </TabsContent>
+
+          <TabsContent value="testing" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TestTube className="h-5 w-5" />
+                  API Testing Tools
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <MspaceAPITester />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="status" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="h-5 w-5" />
+                  Integration Status & Setup
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <MspaceIntegrationStatus />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
-
-      {/* Integration Status */}
-      <MspaceIntegrationStatus />
-
-      {/* Main Dashboard */}
-      <Tabs defaultValue="credits" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="credits" className="flex items-center gap-2">
-            <CreditCard className="h-4 w-4" />
-            Credits
-          </TabsTrigger>
-          <TabsTrigger value="clients" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            Reseller Clients
-          </TabsTrigger>
-          <TabsTrigger value="subusers" className="flex items-center gap-2">
-            <Database className="h-4 w-4" />
-            Sub Users
-          </TabsTrigger>
-          <TabsTrigger value="testing" className="flex items-center gap-2">
-            <TestTube className="h-4 w-4" />
-            API Testing
-          </TabsTrigger>
-          <TabsTrigger value="status" className="flex items-center gap-2">
-            <Activity className="h-4 w-4" />
-            Integration
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="credits" className="space-y-4">
-          <MspaceCreditsManager />
-        </TabsContent>
-
-        <TabsContent value="clients" className="space-y-4">
-          <MspaceResellerClients />
-        </TabsContent>
-
-        <TabsContent value="subusers" className="space-y-4">
-          <SubUsersManager />
-        </TabsContent>
-
-        <TabsContent value="testing" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TestTube className="h-5 w-5" />
-                API Testing Tools
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <MspaceAPITester />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="status" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="h-5 w-5" />
-                Integration Status & Setup
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <MspaceIntegrationStatus />
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+    </MspaceErrorBoundary>
   );
 }
