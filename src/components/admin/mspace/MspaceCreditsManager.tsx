@@ -69,178 +69,51 @@ export function MspaceCreditsManager() {
     setIsTestingManual(true);
 
     try {
-      console.log("Attempting real API call to mspace");
+      console.log("Testing credentials via edge function...");
 
-      // Try multiple approaches to get real data
-      let response;
-      let responseData;
-      let success = false;
+      // Try the edge function first
+      const { data, error } = await supabase.functions.invoke("mspace-proxy", {
+        body: {
+          endpoint: "https://api.mspace.co.ke/smsapi/v2/balance",
+          apiKey: manualApiKey.trim(),
+          username: manualUsername.trim(),
+          operation: "balance",
+        },
+      });
 
-      // Method 1: Try the original mspace-balance function
-      try {
-        console.log("Trying original mspace-balance function...");
-        const { data, error } =
-          await supabase.functions.invoke("mspace-balance");
-        if (!error && data) {
-          responseData = data;
-          success = true;
-          console.log("✅ Original function worked:", data);
-        } else {
-          console.log("❌ Original function failed:", error);
-        }
-      } catch (funcError) {
-        console.log("❌ Original function error:", funcError);
+      if (error) {
+        throw new Error(`Edge function error: ${error.message}`);
       }
 
-      // Method 2: Try the proxy function if original failed
-      if (!success) {
-        try {
-          console.log("Trying mspace-proxy function...");
-          const { data, error } = await supabase.functions.invoke(
-            "mspace-proxy",
-            {
-              body: {
-                endpoint: "https://api.mspace.co.ke/smsapi/v2/balance",
-                apiKey: manualApiKey.trim(),
-                username: manualUsername.trim(),
-                operation: "balance",
-              },
-            },
-          );
-          if (!error && data) {
-            responseData = data;
-            success = true;
-            console.log("✅ Proxy function worked:", data);
-          } else {
-            console.log("❌ Proxy function failed:", error);
-          }
-        } catch (proxyError) {
-          console.log("❌ Proxy function error:", proxyError);
-        }
+      if (data?.error) {
+        throw new Error(data.error);
       }
 
-      // Method 3: Try direct API call as last resort
-      if (!success) {
-        try {
-          console.log("Trying direct API call...");
-
-          // Try different approaches for direct call
-          const methods = [
-            // GET with query params
-            {
-              url: `https://api.mspace.co.ke/smsapi/v2/balance?apikey=${encodeURIComponent(manualApiKey.trim())}`,
-              options: {
-                method: "GET",
-                headers: { Accept: "application/json" },
-              },
-            },
-            // POST with form data
-            {
-              url: "https://api.mspace.co.ke/smsapi/v2/balance",
-              options: {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/x-www-form-urlencoded",
-                },
-                body: `apikey=${encodeURIComponent(manualApiKey.trim())}`,
-              },
-            },
-            // POST with JSON
-            {
-              url: "https://api.mspace.co.ke/smsapi/v2/balance",
-              options: {
-                method: "POST",
-                headers: {
-                  apikey: manualApiKey.trim(),
-                  "Content-Type": "application/json",
-                  Accept: "application/json",
-                },
-                body: JSON.stringify({ apikey: manualApiKey.trim() }),
-              },
-            },
-          ];
-
-          for (const method of methods) {
-            try {
-              console.log(`Trying ${method.options.method} to ${method.url}`);
-              response = await fetch(method.url, method.options);
-              const text = await response.text();
-              console.log(`Response: ${response.status} - ${text}`);
-
-              if (response.ok) {
-                responseData = { result: text, raw: true };
-                success = true;
-                break;
-              }
-            } catch (methodError) {
-              console.log(`Method failed:`, methodError);
-            }
-          }
-        } catch (directError) {
-          console.log("❌ Direct API call failed:", directError);
-        }
-      }
-
-      if (success && responseData) {
-        // Parse the real response
-        let balanceValue: number;
-
-        if (responseData.raw && responseData.result) {
-          balanceValue = parseInt(responseData.result.trim());
-        } else if (responseData.balance !== undefined) {
-          balanceValue = parseInt(responseData.balance);
-        } else if (typeof responseData === "number") {
-          balanceValue = responseData;
-        } else if (typeof responseData === "string") {
-          balanceValue = parseInt(responseData.trim());
-        } else {
-          throw new Error(
-            "Could not parse balance from response: " +
-              JSON.stringify(responseData),
-          );
-        }
-
-        if (isNaN(balanceValue)) {
-          throw new Error(
-            "Invalid balance value received: " + JSON.stringify(responseData),
-          );
-        }
-
-        setBalance(balanceValue);
-        setLastUpdated(new Date().toISOString());
-        setUseManualCredentials(true);
-        toast.success(
-          `✅ Real Balance: ${balanceValue.toLocaleString()} SMS - Live data from mspace API!`,
-        );
+      // Parse balance from response
+      let balanceValue: number;
+      if (data?.result && data.raw) {
+        balanceValue = parseInt(data.result.trim());
+      } else if (data?.balance !== undefined) {
+        balanceValue = parseInt(data.balance);
       } else {
-        // If all methods failed, show the curl command for manual testing
-        const curlCommand = `curl -X POST "https://api.mspace.co.ke/smsapi/v2/balance" \\
-  -H "apikey: ${manualApiKey.trim()}" \\
-  -H "Content-Type: application/json" \\
-  -H "Accept: application/json" \\
-  -d '{"apikey": "${manualApiKey.trim()}"}'`;
-
-        console.log(
-          "All API methods failed. Use this curl command:",
-          curlCommand,
-        );
-
-        toast.error(
-          `❌ All API methods failed due to CORS restrictions. Use this curl command in terminal:`,
-          {
-            duration: 10000,
-          },
-        );
-
-        // Copy curl command to clipboard if possible
-        if (navigator.clipboard) {
-          navigator.clipboard.writeText(curlCommand);
-          toast.info("📋 Curl command copied to clipboard!");
-        }
+        throw new Error("Unexpected response format");
       }
+
+      if (isNaN(balanceValue)) {
+        throw new Error("Invalid balance value received");
+      }
+
+      setBalance(balanceValue);
+      setLastUpdated(new Date().toISOString());
+      setUseManualCredentials(true);
+      toast.success(`✅ Live Balance: ${balanceValue.toLocaleString()} SMS`, {
+        description: "Retrieved via backend proxy",
+      });
     } catch (error: any) {
-      console.error("Error getting real API data:", error);
-      toast.error(`❌ Error: ${error.message}`);
+      console.error("Manual test failed:", error);
+      toast.error(`❌ Backend test failed: ${error.message}`, {
+        description: "Use the API tester tools below for external testing",
+      });
     } finally {
       setIsTestingManual(false);
     }
