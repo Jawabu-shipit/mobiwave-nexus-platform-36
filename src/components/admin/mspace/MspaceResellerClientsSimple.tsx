@@ -19,7 +19,7 @@ import { toast } from "sonner";
 
 interface ResellerClient {
   clientUserName: string;
-  balance: string;
+  smsBalance: string;
   status?: string;
 }
 
