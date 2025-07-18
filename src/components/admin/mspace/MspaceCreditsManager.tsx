@@ -68,40 +68,36 @@ export function MspaceCreditsManager() {
 
       console.log("Proxy response:", data);
 
-      const responseText = await response.text();
-      console.log("Manual credentials test response:", {
-        status: response.status,
-        body: responseText,
-      });
+      // Handle the response from the proxy
+      let balanceValue: number;
 
-      if (!response.ok) {
+      if (data.raw && data.result) {
+        // Raw text response (likely just a number)
+        balanceValue = parseInt(data.result.trim());
+      } else if (data.balance !== undefined) {
+        // JSON response with balance field
+        balanceValue = parseInt(data.balance);
+      } else if (typeof data === "number") {
+        // Direct number response
+        balanceValue = data;
+      } else {
         throw new Error(
-          `Mspace API error (${response.status}): ${responseText}`,
+          "Invalid balance response format: " + JSON.stringify(data),
         );
       }
 
-      try {
-        const data = JSON.parse(responseText);
-        const balanceValue = parseInt(data.balance) || parseInt(responseText);
-        setBalance(balanceValue);
-        setLastUpdated(new Date().toISOString());
-        setUseManualCredentials(true);
-        toast.success(
-          `Balance: ${balanceValue.toLocaleString()} SMS - Manual credentials working!`,
-        );
-      } catch (parseError) {
-        // If response is just a number
-        const balanceValue = parseInt(responseText.trim());
-        if (isNaN(balanceValue)) {
-          throw new Error("Invalid balance response format: " + responseText);
-        }
-        setBalance(balanceValue);
-        setLastUpdated(new Date().toISOString());
-        setUseManualCredentials(true);
-        toast.success(
-          `Balance: ${balanceValue.toLocaleString()} SMS - Manual credentials working!`,
+      if (isNaN(balanceValue)) {
+        throw new Error(
+          "Could not parse balance from response: " + JSON.stringify(data),
         );
       }
+
+      setBalance(balanceValue);
+      setLastUpdated(new Date().toISOString());
+      setUseManualCredentials(true);
+      toast.success(
+        `✅ Balance: ${balanceValue.toLocaleString()} SMS - Manual credentials working!`,
+      );
     } catch (error: any) {
       console.error("Manual credentials test failed:", error);
 
