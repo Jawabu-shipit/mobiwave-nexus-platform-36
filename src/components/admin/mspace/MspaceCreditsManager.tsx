@@ -151,6 +151,77 @@ export function MspaceCreditsManager() {
         </Alert>
       )}
 
+      {/* Manual Credentials Input */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Key className="h-5 w-5" />
+            Manual Credentials Test
+          </CardTitle>
+          <CardDescription>
+            Enter your mspace API credentials directly to test the API
+            connection
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <Label htmlFor="apikey" className="flex items-center gap-2">
+                <Key className="h-4 w-4" />
+                API Key
+              </Label>
+              <Input
+                id="apikey"
+                type="password"
+                value={manualApiKey}
+                onChange={(e) => setManualApiKey(e.target.value)}
+                placeholder="Enter your mspace API key"
+              />
+            </div>
+            <div>
+              <Label htmlFor="username" className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                Username
+              </Label>
+              <Input
+                id="username"
+                type="text"
+                value={manualUsername}
+                onChange={(e) => setManualUsername(e.target.value)}
+                placeholder="Enter your mspace username"
+              />
+            </div>
+          </div>
+          <Button
+            onClick={testManualCredentials}
+            disabled={
+              isTestingManual || !manualApiKey.trim() || !manualUsername.trim()
+            }
+            className="w-full"
+          >
+            {isTestingManual ? (
+              <>
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                Testing...
+              </>
+            ) : (
+              <>
+                <Key className="h-4 w-4 mr-2" />
+                Test Credentials & Get Balance
+              </>
+            )}
+          </Button>
+          {useManualCredentials && (
+            <Alert className="mt-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                ✅ Manual credentials are working! Balance data shown above.
+              </AlertDescription>
+            </Alert>
+          )}
+        </CardContent>
+      </Card>
+
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
