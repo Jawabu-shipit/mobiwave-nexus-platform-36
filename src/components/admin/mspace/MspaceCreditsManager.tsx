@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RefreshCw, CreditCard, AlertCircle, Key, User } from "lucide-react";
-import { useMspaceDirectApi } from "@/hooks/mspace/useMspaceDirectApi";
+import { useMspaceIntegration } from "@/hooks/mspace/useMspaceIntegration";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -25,12 +25,25 @@ export function MspaceCreditsManager() {
   const [manualUsername, setManualUsername] = useState("");
   const [useManualCredentials, setUseManualCredentials] = useState(false);
   const [isTestingManual, setIsTestingManual] = useState(false);
-  const { checkBalance, hasCredentials, credentialsError, isLoading } =
-    useMspaceDirectApi();
+  const {
+    checkBalance,
+    hasCredentials,
+    hasEncryptedCredentials,
+    credentialsError,
+    isLoading,
+    canUseDirectAPI,
+    needsManualTesting,
+  } = useMspaceIntegration();
 
   const loadBalance = async () => {
-    if (!hasCredentials) {
-      toast.error("Please configure your Mspace API credentials first");
+    if (!canUseDirectAPI) {
+      if (hasEncryptedCredentials) {
+        toast.info(
+          "📝 Encrypted credentials detected. Use manual testing below.",
+        );
+      } else {
+        toast.error("Please configure your Mspace API credentials first");
+      }
       return;
     }
 
@@ -40,7 +53,10 @@ export function MspaceCreditsManager() {
       setLastUpdated(result.timestamp);
     } catch (error: any) {
       console.error("Failed to load balance:", error);
-      // Error is already handled by the mutation's onError
+      // Try to provide helpful feedback
+      toast.error("⚠️ Edge function failed. Use manual testing below.", {
+        description: "The backend API call encountered an issue",
+      });
     }
   };
 
