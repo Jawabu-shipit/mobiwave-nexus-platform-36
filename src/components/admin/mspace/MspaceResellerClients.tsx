@@ -320,6 +320,11 @@ export function MspaceResellerClients() {
           </p>
         </CardContent>
       </Card>
+
+      <div className="border-t pt-6">
+        <h3 className="text-lg font-semibold mb-4">API Testing Tools</h3>
+        <MspaceAPITester />
+      </div>
     </div>
   );
 }
