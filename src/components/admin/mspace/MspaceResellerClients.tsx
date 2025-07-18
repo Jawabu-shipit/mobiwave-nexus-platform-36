@@ -25,6 +25,9 @@ interface ResellerClient {
 export function MspaceResellerClients() {
   const [clients, setClients] = useState<ResellerClient[]>([]);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [manualApiKey, setManualApiKey] = useState("");
+  const [manualUsername, setManualUsername] = useState("");
+  const [isTestingManual, setIsTestingManual] = useState(false);
   const { getResellerClients, hasCredentials, credentialsError, isLoading } =
     useMspaceDirectApi();
 
