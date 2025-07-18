@@ -105,6 +105,10 @@ export function MspaceUserManagement() {
           <MspaceCreditsManager />
         </TabsContent>
 
+        <TabsContent value="reseller" className="space-y-6">
+          <MspaceResellerClients />
+        </TabsContent>
+
         <TabsContent value="clients" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>
