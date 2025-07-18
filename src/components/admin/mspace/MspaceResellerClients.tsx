@@ -114,7 +114,20 @@ export function MspaceResellerClients() {
       }
     } catch (error: any) {
       console.error("Manual reseller clients test failed:", error);
-      toast.error(`Test failed: ${error.message}`);
+
+      // Handle CORS errors specifically
+      if (
+        error.name === "TypeError" &&
+        error.message.includes("Failed to fetch")
+      ) {
+        toast.error(
+          "❌ CORS Error: Mspace API blocks direct browser requests. Direct API calls from browser are not supported.",
+        );
+        setClients([]);
+        setLastUpdated(null);
+      } else {
+        toast.error(`Test failed: ${error.message}`);
+      }
     } finally {
       setIsTestingManual(false);
     }
