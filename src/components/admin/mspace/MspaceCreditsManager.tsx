@@ -50,22 +50,23 @@ export function MspaceCreditsManager() {
 
     setIsTestingManual(true);
     try {
-      console.log("Testing manual credentials with mspace API");
+      console.log("Testing manual credentials via proxy");
 
-      const response = await fetch(
-        "https://api.mspace.co.ke/smsapi/v2/balance",
-        {
-          method: "POST",
-          headers: {
-            apikey: manualApiKey.trim(),
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            apikey: manualApiKey.trim(),
-          }),
+      // Use the proxy function to avoid CORS issues
+      const { data, error } = await supabase.functions.invoke("mspace-proxy", {
+        body: {
+          endpoint: "https://api.mspace.co.ke/smsapi/v2/balance",
+          apiKey: manualApiKey.trim(),
+          username: manualUsername.trim(),
+          operation: "balance",
         },
-      );
+      });
+
+      if (error) {
+        throw new Error(error.message || "Proxy request failed");
+      }
+
+      console.log("Proxy response:", data);
 
       const responseText = await response.text();
       console.log("Manual credentials test response:", {
