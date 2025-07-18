@@ -231,18 +231,10 @@ export function MspaceResellerClientsSimple() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <span className="font-mono">
-                          {formatBalance(client.balance)} SMS
+                                                <span className="font-mono">
+                          {formatBalance(client.smsBalance)} SMS
                         </span>
-                        {!client.balance && client.balance !== 0 && (
-                          <span className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded">
-                            No balance data
-                          </span>
-                        )}
                       </div>
-                      {/* Debug info */}
-                      <div className="text-xs text-gray-400 mt-1">
-                        Raw: {JSON.stringify(client.balance)}
                       </div>
                     </TableCell>
                     <TableCell>
