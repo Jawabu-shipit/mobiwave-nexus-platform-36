@@ -17,7 +17,8 @@ import { MspaceDebugger } from "./MspaceDebugger";
 export function MspaceCreditsManager() {
   const [balance, setBalance] = useState<number | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
-  const { checkBalance, isLoading, lastError } = useMspaceBalance();
+  const { checkBalance, hasCredentials, credentialsError, isLoading } =
+    useMspaceDirectApi();
 
   const loadBalance = async () => {
     try {
