@@ -231,10 +231,9 @@ export function MspaceResellerClientsSimple() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                                                <span className="font-mono">
+                        <span className="font-mono">
                           {formatBalance(client.smsBalance)} SMS
                         </span>
-                      </div>
                       </div>
                     </TableCell>
                     <TableCell>
