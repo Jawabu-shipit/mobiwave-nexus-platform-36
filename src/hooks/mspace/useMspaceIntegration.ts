@@ -170,10 +170,14 @@ export const useMspaceIntegration = () => {
   // Balance check using edge function
   const checkBalance = useMutation({
     mutationFn: checkBalanceViaEdgeFunction,
+    onMutate: () => {
+      toast.loading("Checking balance...", { id: "balance-check" });
+    },
     onSuccess: (data) => {
       toast.success(
         `✅ Balance: ${data.balance.toLocaleString()} ${data.currency || "SMS"}`,
         {
+          id: "balance-check",
           description:
             data.source === "edge_function"
               ? "Retrieved via backend"
@@ -183,8 +187,24 @@ export const useMspaceIntegration = () => {
     },
     onError: (error: any) => {
       console.error("Balance check error:", error);
-      toast.error(`❌ Balance check failed: ${error.message}`, {
-        description: "Try using the manual API tester below",
+
+      let errorMessage = error.message;
+      let description = "Try using the manual API tester below";
+
+      // Provide specific error guidance
+      if (error.message.includes("Access token not provided")) {
+        description =
+          "Edge functions need deployment with proper authentication";
+      } else if (error.message.includes("Invalid API key")) {
+        description = "Check your mspace API credentials";
+      } else if (error.message.includes("CORS")) {
+        description =
+          "Use the manual testing tools - browser calls are blocked";
+      }
+
+      toast.error(`❌ Balance check failed: ${errorMessage}`, {
+        id: "balance-check",
+        description,
       });
     },
   });
@@ -192,24 +212,42 @@ export const useMspaceIntegration = () => {
   // Reseller clients using edge function
   const getResellerClients = useMutation({
     mutationFn: getResellerClientsViaEdgeFunction,
+    onMutate: () => {
+      toast.loading("Loading reseller clients...", { id: "reseller-clients" });
+    },
     onSuccess: (data) => {
-      toast.success(`✅ Found ${data.length} reseller clients`);
+      toast.success(`✅ Found ${data.length} reseller clients`, {
+        id: "reseller-clients",
+        description: "Retrieved via backend",
+      });
     },
     onError: (error: any) => {
       console.error("Reseller clients error:", error);
-      toast.error(`❌ Failed to fetch reseller clients: ${error.message}`);
+      toast.error(`❌ Failed to fetch reseller clients: ${error.message}`, {
+        id: "reseller-clients",
+        description: "Use the manual API tester below",
+      });
     },
   });
 
   // Sub users using edge function
   const getSubUsers = useMutation({
     mutationFn: getSubUsersViaEdgeFunction,
+    onMutate: () => {
+      toast.loading("Loading sub users...", { id: "sub-users" });
+    },
     onSuccess: (data) => {
-      toast.success(`✅ Found ${data.length} sub users`);
+      toast.success(`✅ Found ${data.length} sub users`, {
+        id: "sub-users",
+        description: "Retrieved via backend",
+      });
     },
     onError: (error: any) => {
       console.error("Sub users error:", error);
-      toast.error(`❌ Failed to fetch sub users: ${error.message}`);
+      toast.error(`❌ Failed to fetch sub users: ${error.message}`, {
+        id: "sub-users",
+        description: "Use the manual API tester below",
+      });
     },
   });
 
