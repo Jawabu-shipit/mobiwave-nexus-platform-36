@@ -51,14 +51,23 @@ export function MspaceCreditsManagerSimple() {
         throw new Error(data.error);
       }
 
+      // Debug: Log the raw API response
+      console.log("Raw balance API response:", data);
+
       // Parse balance from response
       let balanceValue: number;
       if (data?.result && data.raw) {
         balanceValue = parseInt(data.result.trim());
+      } else if (data?.smsBalance !== undefined) {
+        // Use smsBalance field from API response
+        balanceValue = parseInt(data.smsBalance);
       } else if (data?.balance !== undefined) {
+        // Fallback to balance field
         balanceValue = parseInt(data.balance);
       } else {
-        throw new Error("Unexpected response format");
+        throw new Error(
+          "Unexpected response format - no balance or smsBalance field found",
+        );
       }
 
       if (isNaN(balanceValue)) {
