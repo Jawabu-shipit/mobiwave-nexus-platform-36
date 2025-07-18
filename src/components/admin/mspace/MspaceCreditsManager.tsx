@@ -69,11 +69,11 @@ export function MspaceCreditsManager() {
         </Button>
       </div>
 
-      {lastError && (
+      {credentialsError && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Error checking balance: {lastError.error} ({lastError.errorType})
+            Credentials error: {credentialsError.message}
           </AlertDescription>
         </Alert>
       )}
