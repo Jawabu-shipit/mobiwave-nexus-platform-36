@@ -42,6 +42,73 @@ export function MspaceCreditsManager() {
     }
   };
 
+  const testManualCredentials = async () => {
+    if (!manualApiKey.trim() || !manualUsername.trim()) {
+      toast.error("Please enter both API key and username");
+      return;
+    }
+
+    setIsTestingManual(true);
+    try {
+      console.log("Testing manual credentials with mspace API");
+
+      const response = await fetch(
+        "https://api.mspace.co.ke/smsapi/v2/balance",
+        {
+          method: "POST",
+          headers: {
+            apikey: manualApiKey.trim(),
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            apikey: manualApiKey.trim(),
+          }),
+        },
+      );
+
+      const responseText = await response.text();
+      console.log("Manual credentials test response:", {
+        status: response.status,
+        body: responseText,
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Mspace API error (${response.status}): ${responseText}`,
+        );
+      }
+
+      try {
+        const data = JSON.parse(responseText);
+        const balanceValue = parseInt(data.balance) || parseInt(responseText);
+        setBalance(balanceValue);
+        setLastUpdated(new Date().toISOString());
+        setUseManualCredentials(true);
+        toast.success(
+          `Balance: ${balanceValue.toLocaleString()} SMS - Manual credentials working!`,
+        );
+      } catch (parseError) {
+        // If response is just a number
+        const balanceValue = parseInt(responseText.trim());
+        if (isNaN(balanceValue)) {
+          throw new Error("Invalid balance response format: " + responseText);
+        }
+        setBalance(balanceValue);
+        setLastUpdated(new Date().toISOString());
+        setUseManualCredentials(true);
+        toast.success(
+          `Balance: ${balanceValue.toLocaleString()} SMS - Manual credentials working!`,
+        );
+      }
+    } catch (error: any) {
+      console.error("Manual credentials test failed:", error);
+      toast.error(`Test failed: ${error.message}`);
+    } finally {
+      setIsTestingManual(false);
+    }
+  };
+
   useEffect(() => {
     loadBalance();
   }, []);
