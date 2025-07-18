@@ -51,10 +51,10 @@ const getCredentials = async (): Promise<MspaceCredentials | null> => {
     let senderId: string | undefined;
 
     // Try to get from direct columns first
-    if (credentials.api_key_encrypted) {
-      // If using encrypted format, we can't decrypt on frontend
+    if (credentials.api_key_encrypted && !credentials.api_key) {
+      // If using encrypted format and no plain api_key, we can't use direct API calls
       throw new Error(
-        "Encrypted credentials detected. Please use a plain API key for direct API calls.",
+        "Encrypted credentials detected. Please use the manual input form below to test API calls.",
       );
     }
 
