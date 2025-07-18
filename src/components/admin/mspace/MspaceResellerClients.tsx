@@ -14,6 +14,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { RefreshCw, Users, AlertCircle, Key, User } from "lucide-react";
 import { useMspaceDirectApi } from "@/hooks/mspace/useMspaceDirectApi";
+import { MspaceAPITester } from "./MspaceAPITester";
 import { toast } from "sonner";
 
 interface ResellerClient {
