@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, CreditCard, AlertCircle } from "lucide-react";
-import { useMspaceBalance } from "@/hooks/mspace/useMspaceBalance";
+import { useMspaceDirectApi } from "@/hooks/mspace/useMspaceDirectApi";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { MspaceDebugger } from "./MspaceDebugger";
