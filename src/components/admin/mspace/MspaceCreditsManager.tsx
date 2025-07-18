@@ -327,7 +327,7 @@ export function MspaceCreditsManager() {
             ) : (
               <>
                 <Key className="h-4 w-4 mr-2" />
-                Test Credentials & Get Balance
+                Get Real Balance from Mspace API
               </>
             )}
           </Button>
