@@ -21,18 +21,18 @@ export function MspaceCreditsManager() {
     useMspaceDirectApi();
 
   const loadBalance = async () => {
+    if (!hasCredentials) {
+      toast.error("Please configure your Mspace API credentials first");
+      return;
+    }
+
     try {
-      const balanceData = await checkBalance();
-      setBalance(balanceData.balance);
-      setLastUpdated(balanceData.timestamp || new Date().toISOString());
-      toast.success("Balance updated successfully");
+      const result = await checkBalance.mutateAsync();
+      setBalance(result.balance);
+      setLastUpdated(result.timestamp);
     } catch (error: any) {
       console.error("Failed to load balance:", error);
-      if (error.message?.includes("credentials not configured")) {
-        toast.error("Please configure your Mspace API credentials first");
-      } else {
-        toast.error("Failed to load balance: " + error.message);
-      }
+      // Error is already handled by the mutation's onError
     }
   };
 
