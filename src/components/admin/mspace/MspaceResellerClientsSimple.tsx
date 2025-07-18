@@ -87,9 +87,18 @@ export function MspaceResellerClientsSimple() {
     }
   };
 
-  const formatBalance = (balance: string) => {
-    const numBalance = parseInt(balance);
-    return isNaN(numBalance) ? balance : numBalance.toLocaleString();
+  const formatBalance = (balance: string | number | undefined | null) => {
+    // Handle missing or empty balance
+    if (balance === undefined || balance === null || balance === "") {
+      return "N/A";
+    }
+
+    const numBalance = parseInt(balance.toString());
+    if (isNaN(numBalance)) {
+      return balance.toString() || "N/A";
+    }
+
+    return numBalance.toLocaleString();
   };
 
   const formatLastUpdated = (timestamp: string | null) => {
