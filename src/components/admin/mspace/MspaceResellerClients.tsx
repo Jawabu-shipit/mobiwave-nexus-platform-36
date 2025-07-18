@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { RefreshCw, Users, AlertCircle, Key, User } from "lucide-react";
-import { useMspaceDirectApi } from "@/hooks/mspace/useMspaceDirectApi";
+import { useMspaceIntegration } from "@/hooks/mspace/useMspaceIntegration";
 import { MspaceAPITester } from "./MspaceAPITester";
 import { toast } from "sonner";
 
@@ -29,11 +29,25 @@ export function MspaceResellerClients() {
   const [manualApiKey, setManualApiKey] = useState("");
   const [manualUsername, setManualUsername] = useState("");
   const [isTestingManual, setIsTestingManual] = useState(false);
-  const { getResellerClients, hasCredentials, credentialsError, isLoading } =
-    useMspaceDirectApi();
+  const {
+    getResellerClients,
+    hasCredentials,
+    hasEncryptedCredentials,
+    credentialsError,
+    isLoading,
+    canUseDirectAPI,
+    needsManualTesting,
+  } = useMspaceIntegration();
 
   const loadClients = async () => {
-    if (!hasCredentials) {
+    if (!canUseDirectAPI) {
+      if (hasEncryptedCredentials) {
+        toast.info(
+          "📝 Encrypted credentials detected. Use manual testing below.",
+        );
+      } else {
+        toast.error("Please configure your Mspace API credentials first");
+      }
       return;
     }
 
@@ -43,7 +57,9 @@ export function MspaceResellerClients() {
       setLastUpdated(new Date().toISOString());
     } catch (error: any) {
       console.error("Failed to load reseller clients:", error);
-      // Error is already handled by the mutation's onError
+      toast.error("⚠️ Edge function failed. Use manual testing below.", {
+        description: "The backend API call encountered an issue",
+      });
     }
   };
 
@@ -54,81 +70,48 @@ export function MspaceResellerClients() {
     }
 
     setIsTestingManual(true);
+
     try {
-      console.log("Testing manual credentials for reseller clients");
+      console.log("Testing manual credentials via edge function...");
 
-      const response = await fetch(
-        "https://api.mspace.co.ke/smsapi/v2/resellerclients",
-        {
-          method: "POST",
-          headers: {
-            apikey: manualApiKey.trim(),
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            apikey: manualApiKey.trim(),
-            username: manualUsername.trim(),
-          }),
+      // Try the edge function with manual credentials
+      const { data, error } = await supabase.functions.invoke("mspace-proxy", {
+        body: {
+          endpoint: "https://api.mspace.co.ke/smsapi/v2/resellerclients",
+          apiKey: manualApiKey.trim(),
+          username: manualUsername.trim(),
+          operation: "resellerclients",
         },
-      );
-
-      const responseText = await response.text();
-      console.log("Manual reseller clients response:", {
-        status: response.status,
-        body: responseText,
       });
 
-      if (!response.ok) {
-        throw new Error(
-          `Mspace API error (${response.status}): ${responseText}`,
-        );
+      if (error) {
+        throw new Error(`Edge function error: ${error.message}`);
       }
 
-      try {
-        const data = JSON.parse(responseText);
-
-        // Handle different response formats
-        let clientsData: ResellerClient[];
-        if (Array.isArray(data)) {
-          clientsData = data;
-        } else if (
-          data.resellerClients &&
-          Array.isArray(data.resellerClients)
-        ) {
-          clientsData = data.resellerClients;
-        } else {
-          console.warn("Unexpected reseller clients response format:", data);
-          clientsData = [];
-        }
-
-        setClients(clientsData);
-        setLastUpdated(new Date().toISOString());
-        toast.success(
-          `Found ${clientsData.length} reseller clients - Manual credentials working!`,
-        );
-      } catch (parseError) {
-        console.error("Failed to parse reseller clients response:", parseError);
-        throw new Error(
-          "Invalid reseller clients response format: " + responseText,
-        );
+      if (data?.error) {
+        throw new Error(data.error);
       }
-    } catch (error: any) {
-      console.error("Manual reseller clients test failed:", error);
 
-      // Handle CORS errors specifically
-      if (
-        error.name === "TypeError" &&
-        error.message.includes("Failed to fetch")
-      ) {
-        toast.error(
-          "❌ CORS Error: Mspace API blocks direct browser requests. Direct API calls from browser are not supported.",
-        );
-        setClients([]);
-        setLastUpdated(null);
+      // Parse clients from response
+      let clientsData: ResellerClient[];
+      if (Array.isArray(data)) {
+        clientsData = data;
+      } else if (data?.resellerClients && Array.isArray(data.resellerClients)) {
+        clientsData = data.resellerClients;
       } else {
-        toast.error(`Test failed: ${error.message}`);
+        clientsData = [];
       }
+
+      setClients(clientsData);
+      setLastUpdated(new Date().toISOString());
+      toast.success(`✅ Found ${clientsData.length} reseller clients`, {
+        description: "Retrieved via backend proxy",
+      });
+    } catch (error: any) {
+      console.error("Manual test failed:", error);
+      toast.error(`❌ Backend test failed: ${error.message}`, {
+        description: "Use the API tester tools below for external testing",
+      });
     } finally {
       setIsTestingManual(false);
     }
