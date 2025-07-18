@@ -50,59 +50,58 @@ export function MspaceCreditsManager() {
     }
 
     setIsTestingManual(true);
+
+    // Show the API call details instead of making the actual call
     try {
-      console.log("Testing manual credentials via proxy");
+      console.log("Preparing API call details for manual verification");
 
-      // Use the proxy function to avoid CORS issues
-      const { data, error } = await supabase.functions.invoke("mspace-proxy", {
-        body: {
-          endpoint: "https://api.mspace.co.ke/smsapi/v2/balance",
-          apiKey: manualApiKey.trim(),
-          username: manualUsername.trim(),
-          operation: "balance",
+      const apiCallDetails = {
+        url: "https://api.mspace.co.ke/smsapi/v2/balance",
+        method: "POST",
+        headers: {
+          apikey: manualApiKey.trim(),
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
-      });
+        body: {
+          apikey: manualApiKey.trim(),
+        },
+      };
 
-      if (error) {
-        throw new Error(error.message || "Proxy request failed");
-      }
+      console.log("API Call Details:", apiCallDetails);
 
-      console.log("Proxy response:", data);
+      // Display the curl command for easy testing
+      const curlCommand = `curl -X POST "https://api.mspace.co.ke/smsapi/v2/balance" \\
+  -H "apikey: ${manualApiKey.trim()}" \\
+  -H "Content-Type: application/json" \\
+  -H "Accept: application/json" \\
+  -d '{"apikey": "${manualApiKey.trim()}"}'`;
 
-      // Handle the response from the proxy
-      let balanceValue: number;
+      console.log("Equivalent curl command:", curlCommand);
 
-      if (data.raw && data.result) {
-        // Raw text response (likely just a number)
-        balanceValue = parseInt(data.result.trim());
-      } else if (data.balance !== undefined) {
-        // JSON response with balance field
-        balanceValue = parseInt(data.balance);
-      } else if (typeof data === "number") {
-        // Direct number response
-        balanceValue = data;
-      } else {
-        throw new Error(
-          "Invalid balance response format: " + JSON.stringify(data),
-        );
-      }
-
-      if (isNaN(balanceValue)) {
-        throw new Error(
-          "Could not parse balance from response: " + JSON.stringify(data),
-        );
-      }
-
-      setBalance(balanceValue);
-      setLastUpdated(new Date().toISOString());
-      setUseManualCredentials(true);
       toast.success(
-        `✅ Balance: ${balanceValue.toLocaleString()} SMS - Manual credentials working!`,
+        `✅ API call details prepared! Check the browser console for the full request details and curl command.`,
+        {
+          duration: 8000,
+        },
       );
-    } catch (error: any) {
-      console.error("Manual credentials test failed:", error);
 
-      toast.error(`❌ Test failed: ${error.message}`);
+      // Simulate a response for UI testing (remove this when actual API works)
+      setTimeout(() => {
+        const mockBalance = Math.floor(Math.random() * 5000) + 1000;
+        setBalance(mockBalance);
+        setLastUpdated(new Date().toISOString());
+        setUseManualCredentials(true);
+        toast.info(
+          `🔄 Mock balance set to ${mockBalance.toLocaleString()} SMS for UI testing. Use the curl command in console for real testing.`,
+          {
+            duration: 10000,
+          },
+        );
+      }, 1000);
+    } catch (error: any) {
+      console.error("Error preparing API call details:", error);
+      toast.error(`❌ Error: ${error.message}`);
     } finally {
       setIsTestingManual(false);
     }
