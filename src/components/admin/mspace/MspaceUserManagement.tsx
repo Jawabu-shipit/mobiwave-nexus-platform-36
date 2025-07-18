@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { useMspaceUsers } from "@/hooks/useMspaceUsers";
 import { LoadingWrapper } from "@/components/ui/loading-wrapper";
-import { MspaceDashboard } from "./MspaceDashboard";
+import { MspaceDashboardSimple } from "./MspaceDashboardSimple";
 
 import { useAuth } from "@/hooks/useAuth";
 
@@ -90,7 +90,7 @@ export function MspaceUserManagement() {
       </div>
 
       {/* Main Mspace Dashboard */}
-      <MspaceDashboard />
+      <MspaceDashboardSimple />
     </div>
   );
 }
