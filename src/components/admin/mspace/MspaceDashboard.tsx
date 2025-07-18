@@ -15,6 +15,8 @@ import { MspaceAPITester } from "./MspaceAPITester";
 import { MspaceIntegrationStatus } from "./MspaceIntegrationStatus";
 import { SubUsersManager } from "./SubUsersManager";
 import { MspaceErrorBoundary } from "./MspaceErrorBoundary";
+import { MspaceDeploymentGuide } from "./MspaceDeploymentGuide";
+import { MspaceImplementationSummary } from "./MspaceImplementationSummary";
 
 export function MspaceDashboard() {
   return (
@@ -34,28 +36,41 @@ export function MspaceDashboard() {
 
         {/* Main Dashboard */}
         <Tabs defaultValue="credits" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="credits" className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4" />
-              Credits
-            </TabsTrigger>
-            <TabsTrigger value="clients" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              Reseller Clients
-            </TabsTrigger>
-            <TabsTrigger value="subusers" className="flex items-center gap-2">
-              <Database className="h-4 w-4" />
-              Sub Users
-            </TabsTrigger>
-            <TabsTrigger value="testing" className="flex items-center gap-2">
-              <TestTube className="h-4 w-4" />
-              API Testing
-            </TabsTrigger>
-            <TabsTrigger value="status" className="flex items-center gap-2">
-              <Activity className="h-4 w-4" />
-              Integration
-            </TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto">
+            <TabsList className="grid w-full grid-cols-7 min-w-[700px]">
+              <TabsTrigger value="credits" className="flex items-center gap-2">
+                <CreditCard className="h-4 w-4" />
+                Credits
+              </TabsTrigger>
+              <TabsTrigger value="clients" className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                Clients
+              </TabsTrigger>
+              <TabsTrigger value="subusers" className="flex items-center gap-2">
+                <Database className="h-4 w-4" />
+                Sub Users
+              </TabsTrigger>
+              <TabsTrigger value="testing" className="flex items-center gap-2">
+                <TestTube className="h-4 w-4" />
+                Testing
+              </TabsTrigger>
+              <TabsTrigger
+                value="deployment"
+                className="flex items-center gap-2"
+              >
+                <Settings className="h-4 w-4" />
+                Deploy
+              </TabsTrigger>
+              <TabsTrigger value="status" className="flex items-center gap-2">
+                <Activity className="h-4 w-4" />
+                Status
+              </TabsTrigger>
+              <TabsTrigger value="summary" className="flex items-center gap-2">
+                <Activity className="h-4 w-4" />
+                Summary
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="credits" className="space-y-4">
             <MspaceCreditsManager />
@@ -83,6 +98,10 @@ export function MspaceDashboard() {
             </Card>
           </TabsContent>
 
+          <TabsContent value="deployment" className="space-y-4">
+            <MspaceDeploymentGuide />
+          </TabsContent>
+
           <TabsContent value="status" className="space-y-4">
             <Card>
               <CardHeader>
@@ -95,6 +114,10 @@ export function MspaceDashboard() {
                 <MspaceIntegrationStatus />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="summary" className="space-y-4">
+            <MspaceImplementationSummary />
           </TabsContent>
         </Tabs>
       </div>
