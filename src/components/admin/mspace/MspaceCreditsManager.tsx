@@ -101,19 +101,7 @@ export function MspaceCreditsManager() {
     } catch (error: any) {
       console.error("Manual credentials test failed:", error);
 
-      // Handle CORS errors specifically
-      if (
-        error.name === "TypeError" &&
-        error.message.includes("Failed to fetch")
-      ) {
-        toast.error(
-          "❌ CORS Error: Mspace API blocks direct browser requests. Direct API calls from browser are not supported.",
-        );
-        setBalance(null);
-        setLastUpdated(null);
-      } else {
-        toast.error(`Test failed: ${error.message}`);
-      }
+      toast.error(`❌ Test failed: ${error.message}`);
     } finally {
       setIsTestingManual(false);
     }
