@@ -59,6 +59,9 @@ export function MspaceResellerClientsSimple() {
         throw new Error(data.error);
       }
 
+      // Debug: Log the raw API response
+      console.log("Raw reseller clients API response:", data);
+
       // Parse clients from response
       let clientsData: ResellerClient[];
       if (Array.isArray(data)) {
