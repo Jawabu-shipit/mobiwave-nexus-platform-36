@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RefreshCw, CreditCard, AlertCircle, Key, User } from "lucide-react";
 import { useMspaceDirectApi } from "@/hooks/mspace/useMspaceDirectApi";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { MspaceDebugger } from "./MspaceDebugger";
