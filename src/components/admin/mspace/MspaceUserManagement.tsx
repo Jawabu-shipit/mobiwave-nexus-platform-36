@@ -82,18 +82,22 @@ export function MspaceUserManagement() {
       </div>
 
       <Tabs defaultValue="credits" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="credits" className="flex items-center gap-2">
             <DollarSign className="w-4 h-4" />
             Credits Management
           </TabsTrigger>
-          <TabsTrigger value="clients" className="flex items-center gap-2">
+          <TabsTrigger value="reseller" className="flex items-center gap-2">
             <Users className="w-4 h-4" />
+            Reseller Clients
+          </TabsTrigger>
+          <TabsTrigger value="clients" className="flex items-center gap-2">
+            <Database className="w-4 h-4" />
             Mspace Clients
           </TabsTrigger>
           <TabsTrigger value="accounts" className="flex items-center gap-2">
             <UserPlus className="w-4 h-4" />
-            Sub Accounts & Reseller Clients
+            Sub Accounts
           </TabsTrigger>
         </TabsList>
 
