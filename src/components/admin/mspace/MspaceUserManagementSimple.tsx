@@ -1,6 +1,6 @@
 import React from "react";
 import { MspaceSystemSetup } from "./MspaceSystemSetup";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 export function MspaceUserManagementSimple() {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
