@@ -1,24 +1,27 @@
-import React, { useState } from 'react';
-import { LoadingWrapper } from '@/components/ui/loading-wrapper';
-import { useCompleteUserManagement } from '@/hooks/useCompleteUserManagement';
-import { CompleteUserStats } from './user-management/CompleteUserStats';
-import { EnhancedUserFilters } from './user-management/EnhancedUserFilters';
-import { CompleteUserTable } from './user-management/CompleteUserTable';
-import { MspaceUserManagement } from './mspace/MspaceUserManagement';
+import React, { useState } from "react";
+import { LoadingWrapper } from "@/components/ui/loading-wrapper";
+import { useCompleteUserManagement } from "@/hooks/useCompleteUserManagement";
+import { CompleteUserStats } from "./user-management/CompleteUserStats";
+import { EnhancedUserFilters } from "./user-management/EnhancedUserFilters";
+import { CompleteUserTable } from "./user-management/CompleteUserTable";
+import { MspaceUserManagementSimple } from "./mspace/MspaceUserManagementSimple";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Globe, AlertTriangle, Shield } from 'lucide-react';
-import { UserRoleManager } from './user-management/UserRoleManager';
-import { AdminContactsBulkActions } from './users/AdminContactsBulkActions';
-import ApiCredentialsTab from './user-management/tabs/ApiCredentialsTab';
+import { Users, Globe, AlertTriangle, Shield } from "lucide-react";
+import { UserRoleManager } from "./user-management/UserRoleManager";
+import { AdminContactsBulkActions } from "./users/AdminContactsBulkActions";
+import ApiCredentialsTab from "./user-management/tabs/ApiCredentialsTab";
 
 export function UserManagement() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [roleFilter, setRoleFilter] = useState('all');
-  const [userTypeFilter, setUserTypeFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [userTypeFilter, setUserTypeFilter] = useState("all");
   const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
 
-  const { users, isLoading, stats, refetch } = 
-  useCompleteUserManagement(searchTerm, roleFilter, userTypeFilter);
+  const { users, isLoading, stats, refetch } = useCompleteUserManagement(
+    searchTerm,
+    roleFilter,
+    userTypeFilter,
+  );
 
   const handleUserUpdated = () => {
     refetch();
@@ -32,7 +35,8 @@ export function UserManagement() {
         </h2>
         <div className="flex items-center gap-2">
           <p className="text-lg text-gray-600 max-w-2xl">
-            Advanced user management including auth users, profiles, Mspace clients, service activations, and automated profile creation.
+            Advanced user management including auth users, profiles, Mspace
+            clients, service activations, and automated profile creation.
           </p>
           {stats.without_profiles > 0 && (
             <div className="flex items-center gap-1 text-amber-600 bg-amber-50 px-2 py-1 rounded-md text-sm">
@@ -57,22 +61,25 @@ export function UserManagement() {
             <Shield className="w-4 h-4" />
             Role Management
           </TabsTrigger>
-          <TabsTrigger value="api-credentials" className="flex items-center gap-2">
+          <TabsTrigger
+            value="api-credentials"
+            className="flex items-center gap-2"
+          >
             <Globe className="w-4 h-4" />
             API Credentials
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="users" className="space-y-6">
-          <AdminContactsBulkActions 
+          <AdminContactsBulkActions
             selectedContacts={selectedUsers}
             onClearSelection={() => setSelectedUsers([])}
             onRefresh={refetch}
           />
-          
+
           <CompleteUserStats stats={stats} />
-          
-          <EnhancedUserFilters 
+
+          <EnhancedUserFilters
             searchTerm={searchTerm}
             roleFilter={roleFilter}
             userTypeFilter={userTypeFilter}
@@ -81,8 +88,8 @@ export function UserManagement() {
             onUserTypeFilterChange={setUserTypeFilter}
           />
 
-          <LoadingWrapper 
-            isLoading={isLoading} 
+          <LoadingWrapper
+            isLoading={isLoading}
             fallback={
               <div className="space-y-4">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -93,7 +100,7 @@ export function UserManagement() {
               </div>
             }
           >
-            <CompleteUserTable 
+            <CompleteUserTable
               users={users}
               isLoading={isLoading}
               onUserUpdated={handleUserUpdated}
@@ -102,14 +109,15 @@ export function UserManagement() {
         </TabsContent>
 
         <TabsContent value="mspace" className="space-y-6">
-          <MspaceUserManagement />
+          <MspaceUserManagementSimple />
         </TabsContent>
 
         <TabsContent value="roles" className="space-y-6">
           <div>
             <h3 className="text-2xl font-bold mb-2">Manage User Roles</h3>
             <p className="text-gray-500 mb-4">
-              Assign or revoke roles for users. Only admins can perform these actions.
+              Assign or revoke roles for users. Only admins can perform these
+              actions.
             </p>
             <React.Suspense fallback={<div>Loading roles...</div>}>
               <UserRoleManager />
