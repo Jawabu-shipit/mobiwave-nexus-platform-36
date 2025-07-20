@@ -1,5 +1,5 @@
 import React from "react";
-import { MspaceSystemSetup } from "./MspaceSystemSetup";
+import { MspaceQuickDebug } from "./MspaceQuickDebug";
 import { useAuth } from "@/components/auth/AuthProvider";
 
 export function MspaceUserManagementSimple() {
@@ -18,5 +18,5 @@ export function MspaceUserManagementSimple() {
     );
   }
 
-  return <MspaceSystemSetup />;
+  return <MspaceQuickDebug />;
 }
